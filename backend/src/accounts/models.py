@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.core.validators import  MaxValueValidator
 
 
 class User(AbstractUser):
@@ -27,17 +28,24 @@ class Captain(models.Model):
     def __str__(self):
         return self.user.username
     
+
+
 class OrderPOSt(models.Model):
     owner=models.ForeignKey(User,on_delete=models.CASCADE,related_name="orders")
     from_place = models.CharField(max_length=40)
     to_place = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=250)
-    time = models.CharField(max_length=40)
+    time_day = models.IntegerField(default=0)
+    time_hours = models.IntegerField(default=0, 
+                validators=[MaxValueValidator(24)])
+    time_minutes = models.IntegerField(
+        default=0, validators=[MaxValueValidator(60)])
     offer_money = models.IntegerField()
 
     def __str__(self):
         return self.description
+
 
 class Delivery(models.Model):
     s=(("w","waiting"),
@@ -49,6 +57,7 @@ class Delivery(models.Model):
 
     def __str__(self):
         return "order:%s taken by captian:%s"%(self.order,self.captain)
+
 
 class Offer(models.Model):
     owner=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="offers")
