@@ -14,6 +14,8 @@ class User(AbstractUser):
     updated_at=models.DateTimeField(auto_now=True)
     image=models.ImageField(upload_to='personal/%y/%m/',blank=True,null=True)
 
+
+
 class Captain(models.Model):
     user=models.OneToOneField(User,primary_key=models.CASCADE,on_delete=True)
     national_id=models.IntegerField()
@@ -37,4 +39,13 @@ class OrderPOSt(models.Model):
     def __str__(self):
         return self.description
 
+class Delivery(models.Model):
+    s=(("w","waiting"),
+        ("p",'progressing'),
+        ("f","finished"))
+    order=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="orders",unique=True)
+    captain=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="captains")
+    state = models.CharField(choices=s, max_length=1,default="w")
 
+    def __str__(self):
+        return "order:%s taken by captian:%s"%(self.order,self.captain)
