@@ -49,3 +49,15 @@ class Delivery(models.Model):
 
     def __str__(self):
         return "order:%s taken by captian:%s"%(self.order,self.captain)
+
+class Offer(models.Model):
+    owner=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="offers")
+    text=models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+    offer_money = models.IntegerField()
+    orderpost=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="postoffers")
+
+
+    def __str__(self):
+        return "%s from: %s"%(self.text,self.owner) 
+
