@@ -14,4 +14,14 @@ class User(AbstractUser):
     updated_at=models.DateTimeField(auto_now=True)
     image=models.ImageField(upload_to='personal/%y/%m/',blank=True,null=True)
 
+class Captain(models.Model):
+    user=models.OneToOneField(User,primary_key=models.CASCADE,on_delete=True)
+    national_id=models.IntegerField()
+    image_national_id=models.ImageField(upload_to='national_id/%y%m%d/')
+    feedback=models.CharField(max_length=250)
 
+
+
+    def __str__(self):
+        return self.user.username
+    
