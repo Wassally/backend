@@ -25,3 +25,16 @@ class Captain(models.Model):
     def __str__(self):
         return self.user.username
     
+class OrderPOSt(models.Model):
+    owner=models.ForeignKey(User,on_delete=models.CASCADE,related_name="orders")
+    from_place = models.CharField(max_length=40)
+    to_place = models.CharField(max_length=40)
+    created_at = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=250)
+    time = models.CharField(max_length=40)
+    offer_money = models.IntegerField()
+
+    def __str__(self):
+        return self.description
+
+
