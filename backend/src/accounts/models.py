@@ -1,7 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
-from django.core.validators import  MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+
+
+
 
 
 class User(AbstractUser):
@@ -18,10 +22,13 @@ class User(AbstractUser):
 
 
 class Captain(models.Model):
+    
     user=models.OneToOneField(User,primary_key=models.CASCADE,on_delete=True)
     national_id=models.IntegerField()
-    image_national_id=models.ImageField(upload_to='national_id/%y%m%d/')
+    image_national_id = models.ImageField(
+        upload_to='national_id/%y%m%d/', blank=True, null=True)
     feedback=models.CharField(max_length=250)
+    vehicle = models.CharField(max_length=30,default="car")
 
 
 
@@ -69,4 +76,20 @@ class Offer(models.Model):
 
     def __str__(self):
         return "%s from: %s"%(self.text,self.owner) 
+
+
+#validator wii come back to imports later xd
+def user_not_client(value):
+    if not(User.objects.get(id=value).is_client):
+        raise ValidationError("must be client")
+
+
+class FeedBack(models.Model):
+    client = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="client_feedback", validators=[user_not_client])
+    captain = models.ForeignKey(Captain, on_delete=models.CASCADE, related_name="captain_feedback")
+    text=models.CharField(max_length=250,default="no feedback")
+    rating = models.IntegerField(default=0, validators=[MaxValueValidator(10),MinValueValidator(0)])
+
+
 
