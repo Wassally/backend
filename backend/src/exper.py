@@ -5,12 +5,14 @@ data={ "username":"mahmouddddddzeyada" , 'password':115512, 'confirm_password':1
 'is_captain':False, 'is_client':True, "governate":"rffr", "city":"rfrf", "phone_number":555,
 }
 user=User.objects.get(id=2)
-ser=UserSerializer(data={
+ser=UserSerializer(u,data={
 	"email": "dhe@yahoo.com",
-	"username": "yowwwussef",
+	"username": "gdo",
+	"password":"11",
+	"confirm_password": "11",
 
-	'is_captain': False,
-	'is_client': True,
+	'is_captain': True,
+	'is_client': False,
 	"governate": "rffr",
 	"city": "rfrf",
 	"phone_number": 555,
