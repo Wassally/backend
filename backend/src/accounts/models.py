@@ -58,10 +58,13 @@ class Delivery(models.Model):
     s=(("w","waiting"),
         ("p",'progressing'),
         ("f","finished"))
-    order=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="orders",unique=True)
+    order=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="orders")
     captain=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="captains")
     state = models.CharField(choices=s, max_length=1,default="w")
-
+    
+    #making cap and order unique and making that table for better manipulating with database
+    class Meta:
+        unique_together=(("order","captain"),)
     def __str__(self):
         return "order:%s taken by captian:%s"%(self.order,self.captain)
 
