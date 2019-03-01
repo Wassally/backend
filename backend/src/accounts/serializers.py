@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from accounts.models import User,Captain
+from .models import User,Captain
 from django.contrib.auth import update_session_auth_hash
+from django.db import transaction
 
 class CaptainSerializer(serializers.ModelSerializer):
     feedback =serializers.CharField(required=False)
@@ -15,7 +16,10 @@ class UserSerializer(serializers.ModelSerializer):
     captain = CaptainSerializer(required=False)
     password=serializers.CharField(write_only=True,required=False)
     confirm_password=serializers.CharField(write_only=True,required=False)
-    email=serializers.EmailField(required=True)
+    email=serializers.EmailField(required=False)
+    city=serializers.CharField(required=False)
+    governate=serializers.CharField(required=False)
+
 
 
     class Meta:
@@ -25,28 +29,41 @@ class UserSerializer(serializers.ModelSerializer):
                 'is_captain', 'is_client', "governate", "city", "phone_number",'captain')
         read_only_fields=("created_at","updated_at")
 
+    @transaction.atomic
     def create(self,validated_data):
         #validation
         #didnot pass password     
         if not validated_data.get("password",None) or not validated_data.get("confirm_password",None):
-            raise serializers.ValidationError("Those passwords don't match.")
+            raise serializers.ValidationError("Please enter a password and "
+                                              "confirm it.")
 
         #didnotmatch
         if validated_data.get("password") != validated_data.get("confirm_password"):
-            raise serializers.ValidationError("Please enter a password and "
-                                                                "confirm it.")
+            raise serializers.ValidationError("Those passwords don't match.")
+        
+        #be sure to the city and governate and email is supplied
+        if not validated_data.get("city")  :
+            raise serializers.ValidationError("city field is required")
+        if not validated_data.get('governate'):
+            raise serializers.ValidationError("governate field is required")
+        if not validated_data.get('email') :
+            raise serializers.ValidationError("email field is required")
+
+
+            
         #sure to be client or captain
         confirm_password = validated_data.pop("confirm_password", None)  # might use it later
         captain_confirm = validated_data.pop("captain", None)
         if validated_data.get("is_client"):
-            return User.objects.create(**validated_data)
+            return User.objects.create_user(**validated_data)
         elif validated_data.get("is_captain"):
-            user = User.objects.create(**validated_data)
-            if captain_confirm:
-                captain= Captain.objects.create(user=user,**captain_confirm)
-                return captain
         
-
+                user = User.objects.create_user(**validated_data)
+                if captain_confirm:
+                    captain= Captain.objects.create(user=user,**captain_confirm)
+                    return user
+        
+    @transaction.atomic
     def update(self,instance,validated_data):
         password=validated_data.pop("password",None)
         confirm_password=validated_data.pop("confirm_password",None)
@@ -55,20 +72,23 @@ class UserSerializer(serializers.ModelSerializer):
             super().update(instance, validated_data)
 
         elif validated_data.get("is_captain"):
-            user = super().update(instance, validated_data)
-            captain=user.captain
-            captain.national_id=captain_data.get("national_id",captain.national_id)
-            captain.feedback=captain_data.get("feedback",captain.feedback)
-            captain.save()
+            
+            instance = super().update(instance, validated_data)
+            captain=instance.captain
+            if captain_data:
+                captain.national_id=captain_data.get("national_id",captain.national_id)
+                captain.feedback=captain_data.get("feedback",captain.feedback)
+                captain.save()
+            instance.save()
 
         #updating_password_if_these_conditions_only
         if password and confirm_password and password==confirm_password:
             
-            user.set_password(password)
-            user.save()
+            instance.set_password(password)
+            instance.save()
             
  
         
-        return user
+        return instance
 
 
