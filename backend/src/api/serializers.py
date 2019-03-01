@@ -27,9 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self,validated_data):
         #validation
-        #didnot pass password
-        
-            
+        #didnot pass password     
         if not validated_data.get("password",None) or not validated_data.get("confirm_password",None):
             raise serializers.ValidationError("Those passwords don't match.")
 
@@ -48,29 +46,29 @@ class UserSerializer(serializers.ModelSerializer):
                 captain= Captain.objects.create(user=user,**captain_confirm)
                 return captain
         
-        
-
-       
 
     def update(self,instance,validated_data):
         password=validated_data.pop("password",None)
         confirm_password=validated_data.pop("confirm_password",None)
-        confirm_captain=validated_data.pop("captain",None)
+        captain_data=validated_data.pop("captain",None)
         if validated_data.get("is_client"):
             super().update(instance, validated_data)
 
         elif validated_data.get("is_captain"):
             user = super().update(instance, validated_data)
             captain=user.captain
-            captain.national_id=validated_data.get("national_id",captain.national_id)
-            captain.feedback=validated_data.get("feedback",captain.feedback)
+            captain.national_id=captain_data.get("national_id",captain.national_id)
+            captain.feedback=captain_data.get("feedback",captain.feedback)
             captain.save()
+
+        #updating_password_if_these_conditions_only
+        if password and confirm_password and password==confirm_password:
             
+            user.set_password(password)
+            user.save()
             
-        password=validated_data.get('password',None)
-        
  
-        update_session_auth_hash(self.context.get('request'),user)
-        return instance
+        
+        return user
 
 
