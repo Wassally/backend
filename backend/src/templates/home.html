@@ -1,7 +1,26 @@
 {% load render_bundle from webpack_loader %}
-{% load webpack_static from webpack_loader %}
-
+{%load static%}
 <!doctype html>
 <html lang="en">
 
-hi
+<head>
+    <meta charset="utf-8">
+    <title>Wasally</title>
+    <base href="/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+    <app-root></app-root>
+</body>
+
+</html>
+    {% render_bundle 'runtime' %}
+    {% render_bundle 'polyfills' %}
+    {% render_bundle 'styles' %}
+    {% render_bundle 'vendor' %}
+    {% render_bundle 'main' %}
+
+</html>

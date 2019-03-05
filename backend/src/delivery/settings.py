@@ -44,7 +44,12 @@ INSTALLED_APPS = [
     'webpack_loader'
     
 ]
-
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'wasally/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-angular.json'),
+    }
+}
 
 
 MIDDLEWARE = [
@@ -107,6 +112,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+#authentication 
+
+
 
 
 # Internationalization

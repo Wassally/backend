@@ -23,7 +23,7 @@ class User(AbstractUser):
 
 class Captain(models.Model):
     
-    user=models.OneToOneField(User,primary_key=models.CASCADE,on_delete=True)
+    user=models.OneToOneField(User,primary_key=True,on_delete=models.CASCADE)
     national_id=models.IntegerField()
     image_national_id = models.ImageField(
         upload_to='national_id/%y%m%d/', blank=True, null=True)
