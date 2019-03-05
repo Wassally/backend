@@ -12,7 +12,7 @@ class CaptainSerializer(serializers.ModelSerializer):
         fields=('national_id','feedback')
 
 class UserSerializer(serializers.ModelSerializer):
-    
+    username=serializers.CharField(required=False)
     captain = CaptainSerializer(required=False)
     password=serializers.CharField(write_only=True,required=False)
     confirm_password=serializers.CharField(write_only=True,required=False)
@@ -41,7 +41,9 @@ class UserSerializer(serializers.ModelSerializer):
         if validated_data.get("password") != validated_data.get("confirm_password"):
             raise serializers.ValidationError("Those passwords don't match.")
         
-        #be sure to the city and governate and email is supplied
+        #be sure to the city and governate and email and username is supplied
+        if not validated_data.get("username"):
+            raise serializers.ValidationError("username field is required")
         if not validated_data.get("city")  :
             raise serializers.ValidationError("city field is required")
         if not validated_data.get('governate'):
@@ -68,13 +70,14 @@ class UserSerializer(serializers.ModelSerializer):
         password=validated_data.pop("password",None)
         confirm_password=validated_data.pop("confirm_password",None)
         captain_data=validated_data.pop("captain",None)
-        if validated_data.get("is_client"):
+        if instance.is_client:
             super().update(instance, validated_data)
 
-        elif validated_data.get("is_captain"):
+        elif instance.is_captain:
             
             instance = super().update(instance, validated_data)
             captain=instance.captain
+            #this if cuz we might give captain data with out suppling captain filed
             if captain_data:
                 captain.national_id=captain_data.get("national_id",captain.national_id)
                 captain.feedback=captain_data.get("feedback",captain.feedback)
