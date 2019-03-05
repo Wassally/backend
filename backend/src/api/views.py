@@ -21,7 +21,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             return (permissions.AllowAny(),)
         if self.request.method=="POST":
             return (permissions.AllowAny(),)
-        return (permissions.IsAuthenticatedOrReadOnly(),)
+        return (permissions.IsAuthenticatedOrReadOnly(),IsAccountOwner())
     
     def destroy(self,request,pk=None):
         obj=self.queryset.get(id=pk).delete()
