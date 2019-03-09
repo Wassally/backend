@@ -2,14 +2,17 @@ from rest_framework import serializers
 from .models import User,Captain
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
 
 class CaptainSerializer(serializers.ModelSerializer):
-    feedback =serializers.CharField(required=False)
+    
     national_id = serializers.IntegerField(required=False)
+    image_national_id = Base64ImageField(required=False)
+
     
     class Meta:
         model=Captain
-        fields=('national_id','feedback')
+        fields = ('national_id', 'feedback', "vehicle","image_national_id")
 
 class UserSerializer(serializers.ModelSerializer):
     username=serializers.CharField(required=False)
@@ -19,6 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
     email=serializers.EmailField(required=False)
     city=serializers.CharField(required=False)
     governate=serializers.CharField(required=False)
+    image = Base64ImageField(required=False)
+    
 
 
 
@@ -26,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         model=User
         fields=('id','email','username','created_at','updated_at',
                 'first_name','last_name','password','confirm_password',
-                'is_captain', 'is_client', "governate", "city", "phone_number",'captain')
+                'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image")
         read_only_fields=("created_at","updated_at")
 
     @transaction.atomic
