@@ -15,18 +15,20 @@ class CaptainSerializer(serializers.ModelSerializer):
         fields = ('national_id', "vehicle","image_national_id")
 
 
-class OrderPostSerializer(serializers.ModelSerializer):
-    owner = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='id')
+class OrderPostSerializer(serializers.ModelSerializer): 
+
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = OrderPost
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at")
-    def validate_owner(self,value):
-        if not User.objects.get(id=value.id).is_client:
-            raise serializers.ValidationError("User must be client")
-        return value
+
+    def create(self,validated_data):
+        validated_data["owner"]=self.context["request"].user
+        order_post=OrderPost.objects.create(**validated_data)
+        return order_post
+
 
 
 

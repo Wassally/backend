@@ -8,7 +8,13 @@ class IsAccountOwner(permissions.BasePermission):
 
 
 class IsOfferOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_client:
+            return False
+        return False
     def has_object_permission(self,request,view,order):
         if request.user:
             return order.owner==request.user
         return False
+
+

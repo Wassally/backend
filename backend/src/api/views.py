@@ -32,7 +32,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 class OrderPostViewSet(viewsets.ModelViewSet):
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
-    permission_classes = (IsOfferOwner(),)
+    
     queryset=OrderPost.objects.all()
     serializer_class=OrderPostSerializer
     
