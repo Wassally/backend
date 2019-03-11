@@ -5,7 +5,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 
 
-
+#validator wii come back to imports later xd
+def user_not_client(value):
+    if not(User.objects.get(id=value).is_client):
+        raise ValidationError("must be client")
 
 
 class User(AbstractUser):
@@ -19,7 +22,8 @@ class User(AbstractUser):
     updated_at=models.DateTimeField(auto_now=True)
     image=models.ImageField(upload_to='personal/%y/%m/',blank=True,null=True)
 
-
+    def __str__(self):
+        return "%d: %s" %(self.id,self.username)
 
 class Captain(models.Model):
     
@@ -36,11 +40,13 @@ class Captain(models.Model):
     
 
 
-class OrderPOSt(models.Model):
-    owner=models.ForeignKey(User,on_delete=models.CASCADE,related_name="orders")
+class OrderPost(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="orders", validators=[user_not_client])
     from_place = models.CharField(max_length=40)
     to_place = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     description = models.CharField(max_length=250)
     time_day = models.IntegerField(default=0)
     time_hours = models.IntegerField(default=0, 
@@ -57,7 +63,7 @@ class Delivery(models.Model):
     s=(("w","waiting"),
         ("p",'progressing'),
         ("f","finished"))
-    order=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="orders")
+    order=models.ForeignKey(OrderPost,on_delete=models.CASCADE,related_name="orders")
     captain=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="captains")
     state = models.CharField(choices=s, max_length=1,default="w")
     
@@ -73,17 +79,14 @@ class Offer(models.Model):
     text=models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
     offer_money = models.IntegerField()
-    orderpost=models.ForeignKey(OrderPOSt,on_delete=models.CASCADE,related_name="postoffers")
+    orderpost=models.ForeignKey(OrderPost,on_delete=models.CASCADE,related_name="postoffers")
 
 
     def __str__(self):
         return "%s from: %s"%(self.text,self.owner) 
 
 
-#validator wii come back to imports later xd
-def user_not_client(value):
-    if not(User.objects.get(id=value).is_client):
-        raise ValidationError("must be client")
+
 
 
 class FeedBack(models.Model):

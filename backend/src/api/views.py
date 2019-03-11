@@ -1,7 +1,7 @@
 from rest_framework import permissions ,viewsets
-from  accounts.serializers import UserSerializer
-from  accounts.models import User,Captain
-from .permissions  import IsAccountOwner
+from  accounts.serializers import UserSerializer,OrderPostSerializer
+from  accounts.models import User,Captain,OrderPost
+from .permissions  import IsAccountOwner,IsOfferOwner
 from django.contrib.auth import authenticate, login
 from rest_framework import status, views
 from rest_framework.response import Response
@@ -14,7 +14,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     queryset=User.objects.all()
     serializer_class=UserSerializer
-    lookup_filed='username'
+    
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -26,6 +26,22 @@ class AccountViewSet(viewsets.ModelViewSet):
     def destroy(self,request,pk=None):
         obj=self.queryset.get(id=pk).delete()
         return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)
+#order_post
+
+
+class OrderPostViewSet(viewsets.ModelViewSet):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = (IsOfferOwner(),)
+    queryset=OrderPost.objects.all()
+    
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return (permissions.AllowAny(),)
+        return (permissions.IsAuthenticatedOrReadOnly(), IsOfferOwner())
+
+
+
 #login 
 
 class LoginView(views.APIView):
