@@ -11,8 +11,8 @@ ser=UserSerializer(data={
 	"password":"555",
 	"confirm_password": "555",
 
-	'is_captain': False,
-	'is_client': True,
+	"is_captain": "False",
+	"is_client": "True",
 	"governate": "rffr",
 	"city": "rfrf",
 	"phone_number": 555,
@@ -20,7 +20,14 @@ ser=UserSerializer(data={
 		"national_id": 1112222555,
 		"feedback": "tset"
 	},
-})
+)
 
 ser.is_valid()
 
+
+from accounts.serializers import *
+from accounts.models import *
+user = User.objects.get(id=30)
+user
+o = OrderPost(owner=user, from_place="frrf", to_place="fff",description="efef", offer_money=10)
+o.save()

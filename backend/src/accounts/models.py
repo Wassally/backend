@@ -5,10 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 
 
-#validator wii come back to imports later xd
-def user_not_client(value):
-    if not(User.objects.get(id=value).is_client):
-        raise ValidationError("must be client")
+
 
 
 class User(AbstractUser):
@@ -24,6 +21,8 @@ class User(AbstractUser):
 
     def __str__(self):
         return "%d: %s" %(self.id,self.username)
+
+
 
 class Captain(models.Model):
     
@@ -42,7 +41,7 @@ class Captain(models.Model):
 
 class OrderPost(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
-                              related_name="orders", validators=[user_not_client])
+                              related_name="orders")
     from_place = models.CharField(max_length=40)
     to_place = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -91,7 +90,7 @@ class Offer(models.Model):
 
 class FeedBack(models.Model):
     client = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name="client_feedback", validators=[user_not_client])
+                               related_name="client_feedback", )
     captain = models.ForeignKey(Captain, on_delete=models.CASCADE, related_name="captain_feedback")
     text=models.CharField(max_length=250,default="no feedback")
     rating = models.IntegerField(default=0, validators=[MaxValueValidator(10),MinValueValidator(0)])

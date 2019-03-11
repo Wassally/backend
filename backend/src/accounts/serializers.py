@@ -12,7 +12,7 @@ class CaptainSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=Captain
-        fields = ('national_id', 'feedback', "vehicle","image_national_id")
+        fields = ('national_id', "vehicle","image_national_id")
 
 
 class OrderPostSerializer(serializers.ModelSerializer):
@@ -23,6 +23,11 @@ class OrderPostSerializer(serializers.ModelSerializer):
         model = OrderPost
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at")
+    def validate_owner(self,value):
+        if not User.objects.get(id=value.id).is_client:
+            raise serializers.ValidationError("User must be client")
+        return value
+
 
 
 

@@ -34,6 +34,7 @@ class OrderPostViewSet(viewsets.ModelViewSet):
         CsrfExemptSessionAuthentication, BasicAuthentication)
     permission_classes = (IsOfferOwner(),)
     queryset=OrderPost.objects.all()
+    serializer_class=OrderPostSerializer
     
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
