@@ -50,6 +50,10 @@ class UserSerializer(serializers.ModelSerializer):
     
     #function for insertinf filed message to insure that password was updated
     def get_password_updated_message(self, obj):
+        try: 
+            self.validated_data
+        except:
+            return None
         if not self.validated_data.get("password", None) or not self.validated_data.get("confirm_password", None):
              return ("password not updated")
         elif  self.validated_data.get("password") == self.validated_data.get("confirm_password"):
