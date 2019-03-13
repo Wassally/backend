@@ -2,7 +2,7 @@ from rest_framework import permissions ,viewsets
 from  accounts.serializers import UserSerializer,OrderPostSerializer
 from  accounts.models import User,Captain,OrderPost
 from .permissions  import IsAccountOwner,IsOfferOwner
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login ,logout
 from rest_framework import status, views
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
@@ -72,5 +72,8 @@ class LoginView(views.APIView):
                 'message':'Username/password invalid'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
+class LogoutView(views.APIView):
+    def get(self,request,format=None):
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
