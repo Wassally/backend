@@ -39,26 +39,42 @@ class UserSerializer(serializers.ModelSerializer):
     password=serializers.CharField(write_only=True)
     confirm_password=serializers.CharField(write_only=True)
     image = Base64ImageField(required=False)
-    orders = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    orders = OrderPostSerializer(many=True, read_only=True)
+    password_updated_message=serializers.SerializerMethodField()
     class Meta:
         model=User
         fields=('id','email','username','created_at','updated_at',
-                'first_name','last_name','password','confirm_password',
+                'first_name', 'last_name', 'password', 'confirm_password',"password_updated_message",
                 'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","orders")
         read_only_fields=("created_at","updated_at")
+    
+    #function for insertinf filed message to insure that password was updated
+    def get_password_updated_message(self, obj):
+        if not self.validated_data.get("password", None) or not self.validated_data.get("confirm_password", None):
+             return ("password not updated")
+        elif  self.validated_data.get("password") == self.validated_data.get("confirm_password"):
+            return ("password updated successfully")
+        else:
+            return ("password and confirm update didnot match")
+        
+
+
 
     @transaction.atomic
     def create(self,validated_data):
         #validation
-        #didnot pass password     
-        if not validated_data.get("password",None) or not validated_data.get("confirm_password",None):
+        #didnot pass password
+        if not validated_data.get("password", None) or not validated_data.get("confirm_password", None):
             raise serializers.ValidationError("Please enter a password and "
                                               "confirm it.")
         #didnotmatch
         if validated_data.get("password") != validated_data.get("confirm_password"):
             raise serializers.ValidationError("Those passwords don't match.")
-            
-        #sure to be client or captain
+        if validated_data.get("is_client") == validated_data.get("is_captain"):
+            raise serializers.ValidationError(
+                "you must specify either captain or client ")
+
+
         confirm_password = validated_data.pop("confirm_password", None)  # might use it later
         captain_confirm = validated_data.pop("captain", None)
         if validated_data.get("is_client"):
@@ -75,10 +91,12 @@ class UserSerializer(serializers.ModelSerializer):
         confirm_password=validated_data.pop("confirm_password",None)
         captain_data=validated_data.pop("captain",None)
         if instance.is_client:
-            super().update(instance, validated_data)
+            instance=super().update(instance, validated_data)
+            #sure is captain is false
+            instance.is_captain=False
+            instance.save()
 
         elif instance.is_captain:
-            
             instance = super().update(instance, validated_data)
             captain=instance.captain
             #this if cuz we might give captain data with out suppling captain filed
@@ -86,6 +104,8 @@ class UserSerializer(serializers.ModelSerializer):
                 captain.national_id=captain_data.get("national_id",captain.national_id)
                 captain.feedback=captain_data.get("feedback",captain.feedback)
                 captain.save()
+            #sure is_client is false
+            instance.is_client = False
             instance.save()
 
         #updating_password_if_these_conditions_only
@@ -94,13 +114,9 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
             instance.save()
             update_session_auth_hash(self.context['request'], instance)
-        
+            
                 
  
         return instance
-
-
-    
-        
 
 
