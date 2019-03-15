@@ -1,23 +1,46 @@
 from rest_framework import serializers
-from .models import User,Captain,OrderPost
+from .models import User,Captain,OrderPost,Delivery,Offer
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
+
+
+class OfferSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+
+
+    class Meta:
+        model = Offer
+        fields = "__all__"
+        read_only_fields = ("created_at", "updated_at")
+
+    def create(self, validated_data):
+        validated_data["owner"] = self.context["request"].user.captain
+        offer = Offer.objects.create(**validated_data)
+        return offer
+
+
+
+
 
 class CaptainSerializer(serializers.ModelSerializer):
     
     national_id = serializers.IntegerField(required=False)
     image_national_id = Base64ImageField(required=False)
+    offers = OfferSerializer(many=True,read_only=True)
+   
 
     
     class Meta:
         model=Captain
-        fields = ('national_id', "vehicle","image_national_id")
+        fields = ('national_id', "vehicle","image_national_id","offers")
+        
 
 
 class OrderPostSerializer(serializers.ModelSerializer): 
 
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    postoffers=OfferSerializer(read_only=True,many=True)
 
     class Meta:
         model = OrderPost
@@ -33,13 +56,20 @@ class OrderPostSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
+
+
+
 class UserSerializer(serializers.ModelSerializer):
     
     captain = CaptainSerializer(required=False)
     password=serializers.CharField(write_only=True)
     confirm_password=serializers.CharField(write_only=True)
     image = Base64ImageField(required=False)
-    orders = OrderPostSerializer(many=True, read_only=True)
+    orders = OrderPostSerializer(many=True, required=False)
     password_updated_message=serializers.SerializerMethodField()
     class Meta:
         model=User
@@ -47,6 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'first_name', 'last_name', 'password', 'confirm_password',"password_updated_message",
                 'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","orders")
         read_only_fields=("created_at","updated_at")
+        
     
     #function for insertinf filed message to insure that password was updated
     def get_password_updated_message(self, obj):
@@ -124,3 +155,16 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+# class SlugRelatedCustomField(serializers.SlugRelatedField):
+#     def get_queryset(self):
+#         queryset=self.queryset
+#         orders_in_delivery = queryset.values_list("order")
+#         if hasattr(self.root,id):
+#             queryset=queryset.exclude(order__in=orders_in_delivery)
+#             return queryset
+
+# class DeliverySerializer(serializers.ModelSerializer):
+#     order=serializers.SlugRelatedCustomField(queryset=OrderPost.objcts.all(),slug_field="id")
+#     class Meta:
+#         model=Delivery
+#         fields="__all__"

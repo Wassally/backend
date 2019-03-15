@@ -1,7 +1,7 @@
 from rest_framework import permissions ,viewsets
-from  accounts.serializers import UserSerializer,OrderPostSerializer
-from  accounts.models import User,Captain,OrderPost
-from .permissions  import IsAccountOwner,IsOfferOwner
+from accounts.serializers import UserSerializer, OrderPostSerializer, OfferSerializer
+from  accounts.models import User,Captain,OrderPost,Offer
+from .permissions  import IsAccountOwner,IsOfferOwner,IsPostOwner
 from django.contrib.auth import authenticate, login ,logout
 from rest_framework import status, views
 from rest_framework.response import Response
@@ -39,9 +39,27 @@ class OrderPostViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.AllowAny(),)
+        return (permissions.IsAuthenticatedOrReadOnly(), IsPostOwner())
+
+    def destroy(self,request,pk=None):
+        obj=self.queryset.get(id=pk).delete()
+        return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)    
+#offers
+class OfferViewSet(viewsets.ModelViewSet):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+    queryset=Offer.objects.all()
+    serializer_class=OfferSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return (permissions.AllowAny(),)
         return (permissions.IsAuthenticatedOrReadOnly(), IsOfferOwner())
 
-
+    
+    def destroy(self, request, pk=None):
+        obj = self.queryset.get(id=pk).delete()
+        return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 #login 
 

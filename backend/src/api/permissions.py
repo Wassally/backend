@@ -7,10 +7,10 @@ class IsAccountOwner(permissions.BasePermission):
         return False
 
 
-class IsOfferOwner(permissions.BasePermission):
+class IsPostOwner(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_client:
-            return False
+            return True
         return False
     def has_object_permission(self,request,view,order):
         if request.user:
@@ -18,3 +18,13 @@ class IsOfferOwner(permissions.BasePermission):
         return False
 
 
+class IsOfferOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_captain:
+            return True
+        return False
+
+    def has_object_permission(self, request, view, offer):
+        if request.user.captain:
+            return offer.owner == request.user.captain
+        return False

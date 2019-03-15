@@ -5,11 +5,12 @@ from django.views.generic.base import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
-from api.views import AccountViewSet, LoginView, OrderPostViewSet, LogoutView
+from api.views import AccountViewSet, LoginView, OrderPostViewSet, LogoutView,OfferViewSet
 
 router = DefaultRouter()
 router.register("accounts",AccountViewSet)
 router.register("orders",OrderPostViewSet)
+router.register("offers", OfferViewSet)
 
 
 urlpatterns = [

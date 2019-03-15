@@ -77,6 +77,7 @@ class Offer(models.Model):
     owner=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="offers")
     text=models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     offer_money = models.IntegerField()
     orderpost=models.ForeignKey(OrderPost,on_delete=models.CASCADE,related_name="postoffers")
 
