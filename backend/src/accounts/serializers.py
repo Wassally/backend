@@ -4,16 +4,17 @@ from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 
-
+#offer serializer
 class OfferSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
-
+    
+    orderpost=serializers.SlugRelatedField(queryset=OrderPost.objects.all()\
+        .exclude(id__in=Delivery.objects.all().values_list("order",flat=True)),slug_field="id")
 
     class Meta:
         model = Offer
         fields = "__all__"
-        read_only_fields = ("created_at", "updated_at")
-
+        read_only_fields = ("created_at", "updated_at","owner")
+        depth = 1
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user.captain
         offer = Offer.objects.create(**validated_data)
@@ -21,22 +22,22 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
 
-
+#captain serializer
 
 class CaptainSerializer(serializers.ModelSerializer):
     
     national_id = serializers.IntegerField(required=False)
     image_national_id = Base64ImageField(required=False)
-    offers = OfferSerializer(many=True,read_only=True)
+    
    
 
     
     class Meta:
         model=Captain
         fields = ('national_id', "vehicle","image_national_id","offers")
-        
+        depth=2
 
-
+#order_post serializer
 class OrderPostSerializer(serializers.ModelSerializer): 
 
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -52,17 +53,7 @@ class OrderPostSerializer(serializers.ModelSerializer):
         order_post=OrderPost.objects.create(**validated_data)
         return order_post
 
-
-
-
-
-
-
-
-
-
-
-
+#user serializer
 class UserSerializer(serializers.ModelSerializer):
     
     captain = CaptainSerializer(required=False)
