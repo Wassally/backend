@@ -1,13 +1,13 @@
 from rest_framework import permissions ,viewsets
-from accounts.serializers import UserSerializer, OrderPostSerializer, OfferSerializer
-from  accounts.models import User,Captain,OrderPost,Offer
-from .permissions  import IsAccountOwner,IsOfferOwner,IsPostOwner
+from accounts.serializers import UserSerializer, PackageSerializer, OfferSerializer
+from  accounts.models import User,Captain,Package,Offer
+from .permissions import IsAccountOwner, IsOfferOwner, IsClientAndOwner
 from django.contrib.auth import authenticate, login ,logout
 from rest_framework import status, views
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 from .Authentication_class import CsrfExemptSessionAuthentication
-
+from django.http import Http404
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -29,21 +29,28 @@ class AccountViewSet(viewsets.ModelViewSet):
 #order_post
 
 
-class OrderPostViewSet(viewsets.ModelViewSet):
+class PackageViewSet(viewsets.ModelViewSet):
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
     
-    queryset=OrderPost.objects.all()
-    serializer_class=OrderPostSerializer
+    queryset=Package.objects.all()
+    serializer_class=PackageSerializer
     
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.AllowAny(),)
-        return (permissions.IsAuthenticatedOrReadOnly(), IsPostOwner())
+        
+        return (permissions.IsAuthenticatedOrReadOnly(), IsClientAndOwner())
+        
 
-    def destroy(self,request,pk=None):
-        obj=self.queryset.get(id=pk).delete()
-        return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)    
+    def destroy(self, request, *args, **kwargs):
+        try :
+            obj = self.get_object()
+            self.perform_destroy(obj)
+            return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)    
+        except Http404:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
 #offers
 class OfferViewSet(viewsets.ModelViewSet):
     authentication_classes = (
@@ -57,9 +64,14 @@ class OfferViewSet(viewsets.ModelViewSet):
         return (permissions.IsAuthenticatedOrReadOnly(), IsOfferOwner())
 
     
-    def destroy(self, request, pk=None):
-        obj = self.queryset.get(id=pk).delete()
-        return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)
+    def destroy(self, request, *args, **kwargs):
+        try :
+            obj = self.get_object()
+            self.perform_destroy(obj)
+            return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)    
+        except Http404:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 #login 
 

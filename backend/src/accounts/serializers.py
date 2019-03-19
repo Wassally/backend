@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,Captain,OrderPost,Delivery,Offer
+from .models import User,Captain,Package,Delivery,Offer
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
@@ -7,8 +7,8 @@ from drf_extra_fields.fields import Base64ImageField
 #offer serializer
 class OfferSerializer(serializers.ModelSerializer):
     
-    orderpost=serializers.SlugRelatedField(queryset=OrderPost.objects.all()\
-        .exclude(id__in=Delivery.objects.all().values_list("order",flat=True)),slug_field="id")
+   # Package=serializers.SlugRelatedField(queryset=Package.objects.all()\
+        #.exclude(id__in=Delivery.objects.all().values_list("order",flat=True)),slug_field="id")
 
     class Meta:
         model = Offer
@@ -19,6 +19,28 @@ class OfferSerializer(serializers.ModelSerializer):
         validated_data["owner"] = self.context["request"].user.captain
         offer = Offer.objects.create(**validated_data)
         return offer
+#creating custom offer serializer for spcial use for not including package on in it 
+class OfferCustomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Offer
+        exclude=("package",)
+        read_only_fields = ("created_at", "updated_at", "owner")
+        depth=1
+#Package serializer
+class PackageSerializer(serializers.ModelSerializer):
+    
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    related_offers = OfferCustomSerializer(many=True,read_only=True)
+    class Meta:
+        model = Package
+        fields = "__all__"
+        read_only_fields = ("created_at", "updated_at","state")
+        
+    def create(self,validated_data):
+        validated_data["owner"] = self.context["request"].user
+        package=Package.objects.create(**validated_data)
+        return package
+
 
 
 
@@ -30,28 +52,11 @@ class CaptainSerializer(serializers.ModelSerializer):
     image_national_id = Base64ImageField(required=False)
     
    
-
-    
     class Meta:
         model=Captain
-        fields = ('national_id', "vehicle","image_national_id","offers")
+        exclude=("user",)
         depth=2
 
-#order_post serializer
-class OrderPostSerializer(serializers.ModelSerializer): 
-
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    postoffers=OfferSerializer(read_only=True,many=True)
-
-    class Meta:
-        model = OrderPost
-        fields = "__all__"
-        read_only_fields = ("created_at", "updated_at")
-
-    def create(self,validated_data):
-        validated_data["owner"]=self.context["request"].user
-        order_post=OrderPost.objects.create(**validated_data)
-        return order_post
 
 #user serializer
 class UserSerializer(serializers.ModelSerializer):
@@ -59,14 +64,14 @@ class UserSerializer(serializers.ModelSerializer):
     captain = CaptainSerializer(required=False)
     password=serializers.CharField(write_only=True)
     confirm_password=serializers.CharField(write_only=True)
-    image = Base64ImageField(required=False)
-    orders = OrderPostSerializer(many=True, required=False)
+    image = Base64ImageField(required=False)    
     password_updated_message=serializers.SerializerMethodField()
+    
     class Meta:
         model=User
         fields=('id','email','username','created_at','updated_at',
                 'first_name', 'last_name', 'password', 'confirm_password',"password_updated_message",
-                'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","orders")
+                'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","packages")
         read_only_fields=("created_at","updated_at")
         
     
@@ -145,6 +150,10 @@ class UserSerializer(serializers.ModelSerializer):
  
         return instance
 
+#order_post serializer
+
+
+
 
 # class SlugRelatedCustomField(serializers.SlugRelatedField):
 #     def get_queryset(self):
@@ -155,7 +164,7 @@ class UserSerializer(serializers.ModelSerializer):
 #             return queryset
 
 # class DeliverySerializer(serializers.ModelSerializer):
-#     order=serializers.SlugRelatedCustomField(queryset=OrderPost.objcts.all(),slug_field="id")
+#     order=serializers.SlugRelatedCustomField(queryset=Package.objcts.all(),slug_field="id")
 #     class Meta:
 #         model=Delivery
 #         fields="__all__"

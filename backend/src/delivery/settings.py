@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'rest_framework',
-    'webpack_loader'
-    
+    'webpack_loader',
+    'reset_migrations',
+    "api"
 ]
 WEBPACK_LOADER = {
     'DEFAULT': {
