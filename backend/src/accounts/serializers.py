@@ -6,7 +6,7 @@ from drf_extra_fields.fields import Base64ImageField
 
 #offer serializer
 class OfferSerializer(serializers.ModelSerializer):
-    
+
    # Package=serializers.SlugRelatedField(queryset=Package.objects.all()\
         #.exclude(id__in=Delivery.objects.all().values_list("order",flat=True)),slug_field="id")
 
@@ -19,7 +19,7 @@ class OfferSerializer(serializers.ModelSerializer):
         validated_data["owner"] = self.context["request"].user.captain
         offer = Offer.objects.create(**validated_data)
         return offer
-#creating custom offer serializer for spcial use for not including package on in it 
+#creating custom offer serializer for spcial use for not including package on in it
 class OfferCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model=Offer
@@ -28,14 +28,14 @@ class OfferCustomSerializer(serializers.ModelSerializer):
         depth=1
 #Package serializer
 class PackageSerializer(serializers.ModelSerializer):
-    
+
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
     related_offers = OfferCustomSerializer(many=True,read_only=True)
     class Meta:
         model = Package
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at","state")
-        
+
     def create(self,validated_data):
         validated_data["owner"] = self.context["request"].user
         package=Package.objects.create(**validated_data)
@@ -47,11 +47,11 @@ class PackageSerializer(serializers.ModelSerializer):
 #captain serializer
 
 class CaptainSerializer(serializers.ModelSerializer):
-    
+
     national_id = serializers.IntegerField(required=False)
     image_national_id = Base64ImageField(required=False)
-    
-   
+
+
     class Meta:
         model=Captain
         exclude=("user",)
@@ -60,24 +60,24 @@ class CaptainSerializer(serializers.ModelSerializer):
 
 #user serializer
 class UserSerializer(serializers.ModelSerializer):
-    
+
     captain = CaptainSerializer(required=False)
     password=serializers.CharField(write_only=True)
     confirm_password=serializers.CharField(write_only=True)
-    image = Base64ImageField(required=False)    
+    image = Base64ImageField(required=False)
     password_updated_message=serializers.SerializerMethodField()
-    
+    packages=PackageSerializer(many=True,read_only=True)
     class Meta:
         model=User
         fields=('id','email','username','created_at','updated_at',
                 'first_name', 'last_name', 'password', 'confirm_password',"password_updated_message",
                 'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","packages")
         read_only_fields=("created_at","updated_at")
-        
-    
+
+
     #function for insertinf filed message to insure that password was updated
     def get_password_updated_message(self, obj):
-        try: 
+        try:
             self.validated_data
         except:
             return None
@@ -87,7 +87,7 @@ class UserSerializer(serializers.ModelSerializer):
             return ("password updated successfully")
         else:
             return ("password and confirm update didnot match")
-        
+
 
 
 
@@ -115,7 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
                 if captain_confirm:
                     captain= Captain.objects.create(user=user,**captain_confirm)
                     return user
-        
+
     @transaction.atomic
     def update(self,instance,validated_data):
         password=validated_data.pop("password",None)
@@ -141,13 +141,13 @@ class UserSerializer(serializers.ModelSerializer):
 
         #updating_password_if_these_conditions_only
         if password and confirm_password and password==confirm_password:
-            
+
             instance.set_password(password)
             instance.save()
             update_session_auth_hash(self.context['request'], instance)
-            
-                
- 
+
+
+
         return instance
 
 #order_post serializer

@@ -27,7 +27,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'accounts.User'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mahmoudzeyada.pythonanywhere.com',]
 
 
 # Application definition
@@ -41,8 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'rest_framework',
-    'webpack_loader',
-    'reset_migrations',
+
     "api"
 ]
 WEBPACK_LOADER = {
@@ -75,7 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                
+
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -113,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-#authentication 
+#authentication
 
 
 
@@ -139,7 +138,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR,"static")
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static_storage"),
+    #os.path.join(BASE_DIR, "static_storage"),
 ]
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,"media")
