@@ -5,6 +5,10 @@ const routes: Routes = [
   {
     path: '',
     loadChildren: './landingpage/landingpage.module#LandingpageModule'
+  } , 
+ {
+   path: 'main',
+    loadChildren: './client/client.module#ClientModule'
   }
 ];
 
