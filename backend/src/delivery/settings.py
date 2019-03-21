@@ -27,7 +27,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'accounts.User'
 
-ALLOWED_HOSTS = ['mahmoudzeyada.pythonanywhere.com',]
+ALLOWED_HOSTS = ['mahmoudzeyada.pythonanywhere.com', '127.0.0.1']
 
 
 # Application definition

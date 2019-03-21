@@ -13,8 +13,8 @@ class IsClientAndOwner(permissions.BasePermission):
             return True
         return False
     def has_object_permission(self,request,view,package):
-        if request.user:
-            return  package.state=="p"
+        if request.user==package.owner:
+            return  package.state=="avaliable"
         return False
 
 

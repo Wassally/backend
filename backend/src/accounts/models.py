@@ -40,9 +40,8 @@ class Captain(models.Model):
 
 
 class Package(models.Model):
-    s = (("p", "pending"),
-         ("i", 'in_progress'),
-         ("f", "finished"))
+    s = (("avaliable", "avaliable"),
+          ("accepted","accepted")  )
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
     from_place = models.CharField(max_length=40)
@@ -58,16 +57,18 @@ class Package(models.Model):
         default=0, validators=[MaxValueValidator(60)])
     offer_money = models.IntegerField()
     weight=models.IntegerField(default=0)
-    state = models.CharField(choices=s, max_length=1, default="p")
+    state = models.CharField(choices=s, max_length=10, default="avaliable")
     def __str__(self):
         return self.note
 
 
 class Delivery(models.Model):
-    
+    s= (("phase1","phase1"),
+        ("phase2","phase2"),
+        ("phase3","phase3"))
     package=models.ForeignKey(Package,on_delete=models.CASCADE,related_name="orders",default=0)
     captain=models.ForeignKey(Captain,on_delete=models.CASCADE,related_name="captains")
-    
+    state = models.CharField(choices=s, max_length=7, default="phase1")
     
     #making cap and order unique and making that table for better manipulating with database
     class Meta:

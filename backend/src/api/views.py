@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 from .Authentication_class import CsrfExemptSessionAuthentication
 from django.http import Http404
+from rest_framework import mixins
+
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -23,19 +25,22 @@ class AccountViewSet(viewsets.ModelViewSet):
             return (permissions.AllowAny(),)
         return (permissions.IsAuthenticatedOrReadOnly(),IsAccountOwner())
     
-    def destroy(self,request,pk=None):
-        obj=self.queryset.get(id=pk).delete()
-        return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)
-#order_post
-
-
+    def destroy(self, request, *args, **kwargs):
+        try:
+            obj = self.get_object()
+            self.perform_destroy(obj)
+            return Response({"message": "the object was deleted"}, status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
+#packages
 class PackageViewSet(viewsets.ModelViewSet):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-    
-    queryset=Package.objects.all()
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)  
     serializer_class=PackageSerializer
-    
+    queryset=Package.objects.all()
+        
+   
+
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.AllowAny(),)
@@ -51,6 +56,24 @@ class PackageViewSet(viewsets.ModelViewSet):
         except Http404:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
+#custom list packages
+
+class PackageCustomListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+    serializer_class = PackageSerializer
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+    def get_queryset(self):
+        queryset = Package.objects.all()
+        state=self.request.query_params.get("state",None)
+        if state :
+            if state in ["accepted","avaliable"]:
+                queryset=queryset.filter(state=state)
+        return queryset
+
 #offers
 class OfferViewSet(viewsets.ModelViewSet):
     authentication_classes = (
