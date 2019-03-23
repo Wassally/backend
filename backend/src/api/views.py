@@ -1,5 +1,5 @@
 from rest_framework import permissions ,viewsets
-from accounts.serializers import UserSerializer, PackageSerializer, OfferSerializer
+from accounts.serializers import UserSerializer, PackageSerializer, OfferSerializer ,ClientDeliverySerializer
 from  accounts.models import User,Captain,Package,Offer
 from .permissions import IsAccountOwner, IsOfferOwner, IsClientAndOwner
 from django.contrib.auth import authenticate, login ,logout
@@ -24,6 +24,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         if self.request.method=="POST":
             return (permissions.AllowAny(),)
         return (permissions.IsAuthenticatedOrReadOnly(),IsAccountOwner())
+
+    def perform_create(self, serializer):
+        account=serializer.save()
+        login(self.request,account)
+
     
     def destroy(self, request, *args, **kwargs):
         try:
@@ -95,6 +100,16 @@ class OfferViewSet(viewsets.ModelViewSet):
         except Http404:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#delivery view for client
+class ClientAcceptDeliveryViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+        authentication_classes = (
+            CsrfExemptSessionAuthentication, BasicAuthentication)
+        serializer_class=ClientDeliverySerializer
+        permission_classes = (permissions.IsAuthenticated,)
+
+
 
 #login 
 

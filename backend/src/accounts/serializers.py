@@ -7,14 +7,14 @@ from drf_extra_fields.fields import Base64ImageField
 #offer serializer
 class OfferSerializer(serializers.ModelSerializer):
 
-   # Package=serializers.SlugRelatedField(queryset=Package.objects.all()\
-        #.exclude(id__in=Delivery.objects.all().values_list("order",flat=True)),slug_field="id")
-
+    package=serializers.SlugRelatedField(queryset=Package.objects.filter(state="avaliable"),slug_field="id")
     class Meta:
         model = Offer
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at","owner")
         depth = 1
+    
+
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user.captain
         offer = Offer.objects.create(**validated_data)
@@ -56,21 +56,40 @@ class CaptainSerializer(serializers.ModelSerializer):
         model=Captain
         exclude=("user",)
         depth=2
+class ClientDeliverySerializer(serializers.ModelSerializer):
+    def get_fields(self, *args, **kwargs):
+        fields=super().get_fields(*args, **kwargs)
+        fields['package'].queryset = Package.objects.filter(state="avaliable", owner=self.context["request"].user)
+        captains = fields['package'].queryset.values_list(
+            "related_offers__owner__id", flat=True)
+        fields['captain'].queryset=Captain.objects.filter(id__in=captains)
+        return fields
+    
+    
+    class Meta:
+        model=Delivery
+        fields="__all__"
+        read_only_fields=("state",)
+    
+        
+
+
+
+
 
 
 #user serializer
 class UserSerializer(serializers.ModelSerializer):
 
     captain = CaptainSerializer(required=False)
-    password=serializers.CharField(write_only=True)
-    confirm_password=serializers.CharField(write_only=True)
+    password=serializers.CharField(write_only=True,required=False)
     image = Base64ImageField(required=False)
     password_updated_message=serializers.SerializerMethodField()
     packages=PackageSerializer(many=True,read_only=True)
     class Meta:
         model=User
         fields=('id','email','username','created_at','updated_at',
-                'first_name', 'last_name', 'password', 'confirm_password',"password_updated_message",
+                'first_name', 'last_name', 'password',"password_updated_message",
                 'is_captain', 'is_client', "governate", "city", "phone_number",'captain',"image","packages")
         read_only_fields=("created_at","updated_at")
 
@@ -81,32 +100,17 @@ class UserSerializer(serializers.ModelSerializer):
             self.validated_data
         except:
             return None
-        if not self.validated_data.get("password", None) or not self.validated_data.get("confirm_password", None):
+        if not self.validated_data.get("password", None):
              return ("password not updated")
-        elif  self.validated_data.get("password") == self.validated_data.get("confirm_password"):
-            return ("password updated successfully")
-        else:
-            return ("password and confirm update didnot match")
+        
+        return ("password updated successfully")
+
 
 
 
 
     @transaction.atomic
     def create(self,validated_data):
-        #validation
-        #didnot pass password
-        if not validated_data.get("password", None) or not validated_data.get("confirm_password", None):
-            raise serializers.ValidationError("Please enter a password and "
-                                              "confirm it.")
-        #didnotmatch
-        if validated_data.get("password") != validated_data.get("confirm_password"):
-            raise serializers.ValidationError("Those passwords don't match.")
-        if validated_data.get("is_client") == validated_data.get("is_captain"):
-            raise serializers.ValidationError(
-                "you must specify either captain or client ")
-
-
-        confirm_password = validated_data.pop("confirm_password", None)  # might use it later
         captain_confirm = validated_data.pop("captain", None)
         if validated_data.get("is_client"):
             return User.objects.create_user(**validated_data)
@@ -119,7 +123,6 @@ class UserSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self,instance,validated_data):
         password=validated_data.pop("password",None)
-        confirm_password=validated_data.pop("confirm_password",None)
         captain_data=validated_data.pop("captain",None)
         if instance.is_client:
             instance=super().update(instance, validated_data)
@@ -140,8 +143,7 @@ class UserSerializer(serializers.ModelSerializer):
             instance.save()
 
         #updating_password_if_these_conditions_only
-        if password and confirm_password and password==confirm_password:
-
+        if password :
             instance.set_password(password)
             instance.save()
             update_session_auth_hash(self.context['request'], instance)
