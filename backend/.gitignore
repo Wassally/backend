@@ -6,3 +6,9 @@ src/db.sqlite3
 media
 static
 env/
+.vscode
+.coverage
+htmlcov/
+config/
+media/
+static/
