@@ -1,0 +1,11 @@
+*.sqlite*
+*.db
+env/
+*.py[cod]
+*.swp
+notes.md
+.coverage
+htmlcov/
+config.ini
+media/
+static/
