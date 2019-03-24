@@ -9,3 +9,4 @@ htmlcov/
 config.ini
 media/
 static/
+.vscode
