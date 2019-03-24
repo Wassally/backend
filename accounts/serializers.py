@@ -19,7 +19,7 @@ class OfferSerializer(serializers.ModelSerializer):
         validated_data["owner"] = self.context["request"].user.captain
         offer = Offer.objects.create(**validated_data)
         return offer
-#creating custom offer serializer for spcial use for not including package on in it
+#creating custom offer serializer for special use for not including package on in it
 class OfferCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model=Offer
