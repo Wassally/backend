@@ -1,5 +1,6 @@
 '''Serializer for accounts.'''
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
@@ -87,10 +88,12 @@ class ClientDeliverySerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     '''Serializer for user.'''
     captain = CaptainSerializer(required=False)
-    password = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True)
     image = Base64ImageField(required=False)
     password_updated_message = serializers.SerializerMethodField()
     packages = PackageSerializer(many=True, read_only=True)
+    email = serializers.EmailField(allow_blank=False, required=True,
+                                   validators=[UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
         model = User
@@ -128,7 +131,7 @@ class UserSerializer(serializers.ModelSerializer):
         captain_data = validated_data.pop("captain", None)
         if instance.is_client:
             instance = super().update(instance, validated_data)
-            #sure is captain is false
+            # sure is captain is false
             instance.is_captain = False
             instance.save()
 
