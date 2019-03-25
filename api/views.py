@@ -1,4 +1,4 @@
-'''views for api'''
+'''views for api to control'''
 
 from rest_framework import permissions, viewsets
 from rest_framework import status, views
