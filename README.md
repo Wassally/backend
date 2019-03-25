@@ -1,1 +1,1 @@
-# delvery_project
+# to install server ... later xd
