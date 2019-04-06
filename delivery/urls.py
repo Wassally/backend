@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
-from api.views import (AccountViewSet, PackageViewSet, LogoutView,
+from api.views import (AccountViewSet, PackageViewSet,
                        CustomAuthTokenLogin, OfferViewSet,
                        PackageCustomListViewSet, ClientAcceptViewSet)
 
@@ -21,7 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
     path('api/login/', CustomAuthTokenLogin.as_view(), name="login"),
-    path('api/logout/', LogoutView.as_view(), name="logout"),
     path('', TemplateView.as_view(template_name="home.html"), name="home"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
