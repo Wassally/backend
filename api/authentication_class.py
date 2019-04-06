@@ -25,5 +25,6 @@ class EmailOrUserNameModelBackend(ModelBackend):
             if user.check_password(password):
                 return user
         if not users:
-            # this line for reducing time between existing user and none existing user
+            '''this line for reducing time between existing
+             user and none existing user'''
             user_model().set_password(password)

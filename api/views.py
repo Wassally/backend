@@ -7,18 +7,23 @@ from rest_framework import mixins
 from rest_framework.authentication import BasicAuthentication
 from django.http import Http404
 from django.contrib.auth import login, logout
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 from accounts.serializers import (
-    UserSerializer, PackageSerializer, OfferSerializer, ClientDeliverySerializer)
+    UserSerializer, PackageSerializer,
+    OfferSerializer, ClientDeliverySerializer)
 from accounts.models import User, Package, Offer
 from .permissions import IsAccountOwner, IsOfferOwner, IsClientAndOwner
-from .authentication_class import CsrfExemptSessionAuthentication, EmailOrUserNameModelBackend
+from .authentication_class import (CsrfExemptSessionAuthentication,
+                                   EmailOrUserNameModelBackend)
+
+from .serializers import AuthTokenCustomSerializer
 
 
 class AccountViewSet(viewsets.ModelViewSet):
     '''model view for account'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -28,10 +33,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         if self.request.method == "POST":
             return (permissions.AllowAny(),)
         return (permissions.IsAuthenticatedOrReadOnly(), IsAccountOwner())
-
-    def perform_create(self, serializer):
-        account = serializer.save()
-        login(self.request, account)
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -47,8 +48,6 @@ class AccountViewSet(viewsets.ModelViewSet):
 
 class PackageViewSet(viewsets.ModelViewSet):
     '''model view for package'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
 
@@ -72,8 +71,7 @@ class PackageViewSet(viewsets.ModelViewSet):
 
 class PackageCustomListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     '''model view for filtering backage'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+
     serializer_class = PackageSerializer
 
     permission_classes = (permissions.IsAuthenticated,)
@@ -91,8 +89,7 @@ class PackageCustomListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class OfferViewSet(viewsets.ModelViewSet):
     '''model view for offers'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
@@ -113,48 +110,31 @@ class OfferViewSet(viewsets.ModelViewSet):
 
 
 # delivery view for client
-class ClientAcceptDeliveryViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class ClientAcceptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     '''model view for accepting client for offer'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+
     serializer_class = ClientDeliverySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
 # login
 
-class LoginView(views.APIView):
-    '''model view for login'''
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+class CustomAuthTokenLogin(ObtainAuthToken):
+    '''custom authentication jwt'''
+    serializer_class = AuthTokenCustomSerializer
 
-    def post(self, request, format=None):
-        '''authentication with post request'''
-
-        username = request.data.get("username")
-        password = request.data.get("password")
-        custom_authenticate = EmailOrUserNameModelBackend().authenticate
-        # authenticate
-        account = custom_authenticate(
-            request, username=username, password=password)
-
-        if account is not None:
-            if account.is_active:
-                login(request, account)
-
-                # serializing
-                serializer = UserSerializer(account)
-                return Response(serializer.data)
-            else:
-                return Response(
-                    {'status': 'Unauthorized',
-                     "message": 'this account has been disabled'},
-                    status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            return Response(
-                {'status': 'Unauthorized',
-                 'message': 'Username/password invalid'},
-                status=status.HTTP_401_UNAUTHORIZED)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email,
+            'name': user.username
+        })
 
 
 class LogoutView(views.APIView):

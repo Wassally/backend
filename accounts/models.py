@@ -71,7 +71,8 @@ class Delivery(models.Model):
         Captain, on_delete=models.CASCADE, related_name="captains")
     state = models.CharField(choices=s, max_length=7, default="phase1")
 
-    # making cap and order unique and making that table for better manipulating with database
+    ''' making cap and order unique and
+    making that table for better manipulating with database'''
     class Meta:
         unique_together = (("package", "captain"),)
 
