@@ -135,12 +135,3 @@ class CustomAuthTokenLogin(ObtainAuthToken):
             'email': user.email,
             'name': user.username
         })
-
-
-class LogoutView(views.APIView):
-    '''model view for logout'''
-
-    def get(self, request, format=None):
-        '''loggin out with get'''
-        logout(request)
-        return Response(status=status.HTTP_204_NO_CONTENT)
