@@ -138,7 +138,7 @@ class UserSerializer(serializers.ModelSerializer):
         if validated_data.get("is_client") == validated_data.get("is_captain"):
             raise serializers.ValidationError("must be captain or client")
         elif validated_data.get("is_client"):
-            return User.objects.create_user(**validated_data)
+            user = User.objects.create_user(**validated_data)
         elif validated_data.get("is_captain"):
             user = User.objects.create_user(**validated_data)
             if captain_confirm:
