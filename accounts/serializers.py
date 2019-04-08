@@ -107,12 +107,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'username', 'created_at', 'updated_at',
-            'first_name', 'last_name', 'password',
+            'id', "auth_token", 'email', 'username', 'created_at',
+            'updated_at', 'first_name', 'last_name', 'password',
             "password_updated_message", 'is_captain',
             'is_client', "governate", "city",
             "phone_number", 'captain', "image", "packages")
-        read_only_fields = ("created_at", "updated_at")
+        read_only_fields = ("created_at", "updated_at", "auth_token")
 
     # function for insertinf filed message to insure that password was updated
     def get_password_updated_message(self, obj):
@@ -124,6 +124,13 @@ class UserSerializer(serializers.ModelSerializer):
         if not self.initial_data.get("password", None):
             return "password not updated"
         return "password created successfully"
+
+    def to_representation(self, instance):
+        '''method for including tokens in post requests only '''
+        obj = super().to_representation(instance)
+        if self.context["request"].method != "POST":
+            obj['auth_token'] = None
+        return obj
 
     @transaction.atomic
     def create(self, validated_data):
@@ -139,6 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(
                     "set national id at least for the captain")
+        Token.objects.create(user=user)
         return user
 
     @transaction.atomic
