@@ -38,7 +38,7 @@ class Captain(models.Model):
 class Package(models.Model):
     '''Package that client creates'''
     s = (("avaliable", "avaliable"),
-         ("accepted", "accepted"))
+         ("pending", "pending"))
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
     from_place = models.CharField(max_length=40)
@@ -47,11 +47,8 @@ class Package(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")
-    time_day = models.IntegerField(default=0)
-    time_hours = models.IntegerField(default=0,
-                                     validators=[MaxValueValidator(24)])
-    time_minutes = models.IntegerField(
-        default=0, validators=[MaxValueValidator(60)])
+    duration = models.CharField(default="Not Specified", max_length=50)
+
     offer_money = models.IntegerField()
     weight = models.IntegerField(default=0)
     state = models.CharField(choices=s, max_length=10, default="avaliable")
