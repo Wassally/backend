@@ -9,13 +9,14 @@ from django.http import Http404
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import permission_classes
 
 from accounts.serializers import (
     UserSerializer, PackageSerializer,
     OfferSerializer, ClientDeliverySerializer)
 from accounts.models import User, Package, Offer
 from .permissions import (IsAccountOwner, IsOfferOwner,
-                          IsClientAndOwner)
+                          IsClientAndOwner, IsPostOrIsAuthenticated)
 from .authentication_class import (CsrfExemptSessionAuthentication,
                                    EmailOrUserNameModelBackend)
 
@@ -27,7 +28,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAccountOwner]
+    permission_classes = (IsPostOrIsAuthenticated, IsAccountOwner)
 
     def destroy(self, request, *args, **kwargs):
         try:
