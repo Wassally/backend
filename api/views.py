@@ -14,7 +14,8 @@ from accounts.serializers import (
     UserSerializer, PackageSerializer,
     OfferSerializer, ClientDeliverySerializer)
 from accounts.models import User, Package, Offer
-from .permissions import IsAccountOwner, IsOfferOwner, IsClientAndOwner
+from .permissions import (IsAccountOwner, IsOfferOwner,
+                          IsClientAndOwner)
 from .authentication_class import (CsrfExemptSessionAuthentication,
                                    EmailOrUserNameModelBackend)
 
@@ -26,13 +27,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return (permissions.AllowAny(),)
-        if self.request.method == "POST":
-            return (permissions.AllowAny(),)
-        return (permissions.IsAuthenticatedOrReadOnly(), IsAccountOwner())
+    permission_classes = [IsAccountOwner]
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -50,12 +45,7 @@ class PackageViewSet(viewsets.ModelViewSet):
     '''model view for package'''
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return (permissions.AllowAny(),)
-
-        return (permissions.IsAuthenticatedOrReadOnly(), IsClientAndOwner())
+    permission_classes = [IsClientAndOwner]
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -85,6 +75,8 @@ class PackageCustomListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return queryset
 
 # offers
+
+# not using this class any way -_____- right now
 
 
 class OfferViewSet(viewsets.ModelViewSet):
