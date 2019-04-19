@@ -17,12 +17,9 @@ class IsClientAndOwner(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        else:
-            try:
-                if request.user.is_client:
-                    return True
-            except:
-                return False
+        elif request.user.is_client:
+            return True
+
         return False
 
     def has_object_permission(self, request, view, package):

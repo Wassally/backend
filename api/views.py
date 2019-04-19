@@ -45,7 +45,7 @@ class PackageViewSet(viewsets.ModelViewSet):
     '''model view for package'''
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
-    permission_classes = [IsClientAndOwner]
+    permission_classes = (permissions.IsAuthenticated, IsClientAndOwner)
 
     def destroy(self, request, *args, **kwargs):
         try:
