@@ -7,7 +7,8 @@ from django.conf import settings
 from rest_framework.routers import DefaultRouter
 from api.views import (AccountViewSet, PackageViewSet,
                        CustomAuthTokenLogin, OfferViewSet,
-                       PackageCustomListViewSet, ClientAcceptViewSet)
+                       PackageCustomListViewSet, ClientAcceptViewSet,
+                       ComputingSalary)
 
 router = DefaultRouter()
 router.register("accounts", AccountViewSet)
@@ -21,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
     path('api/login/', CustomAuthTokenLogin.as_view(), name="login"),
+    path('api/salary/', ComputingSalary.as_view(), name="salary"),
     path('', TemplateView.as_view(template_name="home.html"), name="home"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

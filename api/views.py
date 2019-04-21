@@ -10,6 +10,10 @@ from django.contrib.auth import login, logout
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import permission_classes
+from rest_framework.views import APIView
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 from accounts.serializers import (
     UserSerializer, PackageSerializer,
@@ -22,7 +26,27 @@ from .authentication_class import (CsrfExemptSessionAuthentication,
 
 from .serializers import AuthTokenCustomSerializer
 
+from .logic import computing_salary
 
+
+# class for computing the money for choosing wassally organization
+
+
+class ComputingSalary(APIView):
+
+    def post(self, request, format=None):
+        to_place = request.POST.get("to_place", None)
+        from_place = request.POST.get("from_place", None)
+        weight = request.POST.get("weight", None)
+
+        if to_place and from_place and weight:
+            salary = computing_salary(to_place, from_place, weight)
+            content = {"expected_salary": salary}
+            return Response(content, status=status.HTTP_200_OK)
+        return Response({"message": "error"}, status=status.HTTP_409_CONFLICT)
+
+
+# account View set
 class AccountViewSet(viewsets.ModelViewSet):
     '''model view for account'''
 
@@ -47,7 +71,14 @@ class PackageViewSet(viewsets.ModelViewSet):
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
     permission_classes = (permissions.IsAuthenticated, IsClientAndOwner)
-    filterset_fields = ('state',)
+    filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
+    ordering_fields = '__all__'
+
+    filterset_fields = "__all__"
+
+    def get_queryset(self):
+        token = Token.objects.get(key=self.request.auth)
+        return self.queryset.filter(owner=token.user)
 
     def destroy(self, request, *args, **kwargs):
         try:

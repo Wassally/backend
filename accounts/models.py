@@ -16,7 +16,7 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(
-        upload_to='personal/%y/%m/', blank=True, null=True)
+        upload_to='personal/%y/%m/', default="default.png")
 
     def __str__(self):
         return "%d: %s" % (self.id, self.username)
@@ -39,6 +39,9 @@ class Package(models.Model):
     '''Package that client creates'''
     s = (("avaliable", "avaliable"),
          ("pending", "pending"))
+
+    t = (("wassally", "wassally"),
+         ("other", "other"))
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
     from_place = models.CharField(max_length=40)
@@ -48,10 +51,11 @@ class Package(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")
     duration = models.CharField(default="Not Specified", max_length=50)
-
-    offer_money = models.IntegerField()
+    wassally_salary = models.IntegerField(default=0)
     weight = models.IntegerField(default=0)
     state = models.CharField(choices=s, max_length=10, default="avaliable")
+    transport_way = models.CharField(
+        choices=t, max_length=9)
 
     def __str__(self):
         return self.note
@@ -65,7 +69,7 @@ class Delivery(models.Model):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name="orders", default=0)
     captain = models.ForeignKey(
-        Captain, on_delete=models.CASCADE, related_name="captains")
+        Captain, on_delete=models.PROTECT, related_name="captains", null=True)
     state = models.CharField(choices=s, max_length=7, default="phase1")
 
     ''' making cap and order unique and
