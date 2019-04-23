@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    "api"
+    "api",
+    'django.contrib.gis'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -89,7 +90,8 @@ DATABASES = {
         'USER': config.get("database", "DB_USER"),
         'PASSWORD': config.get("database", "DB_PASSWORD"),
         'HOST': 'LOCALHOST',
-        'PORT': '5432'
+        'PORT': '5432',
+
 
 
 

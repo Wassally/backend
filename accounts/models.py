@@ -1,8 +1,9 @@
 '''Models for creating tables for account.'''
 
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.gis.geos import Point
 
 
 class User(AbstractUser):
@@ -56,6 +57,8 @@ class Package(models.Model):
     state = models.CharField(choices=s, max_length=10, default="avaliable")
     transport_way = models.CharField(
         choices=t, max_length=9)
+    to_location = models.PointField(default=Point(0, 0))
+    from_location = models.PointField(default=Point(0, 0))
 
     def __str__(self):
         return self.note
