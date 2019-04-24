@@ -2,7 +2,8 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
-
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from drf_extra_fields.geo_fields import PointField
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
@@ -52,12 +53,15 @@ class PackageSerializer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
     time_since = serializers.SerializerMethodField()
+    to_location = PointField()
+    from_location = PointField()
 
     class Meta:
         model = Package
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at",
                             "state", "wassally_salary")
+        geo_field = "to_location"
 
     def get_created_at(self, obj):
         return obj.created_at.strftime("%d/%m/%Y")

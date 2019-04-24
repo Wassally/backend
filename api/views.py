@@ -74,7 +74,7 @@ class PackageViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
     ordering_fields = '__all__'
 
-    filterset_fields = "__all__"
+    filterset_fields = ('state',)
 
     def get_queryset(self):
         token = Token.objects.get(key=self.request.auth)

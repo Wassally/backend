@@ -43,6 +43,7 @@ class Package(models.Model):
 
     t = (("wassally", "wassally"),
          ("other", "other"))
+
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
     from_place = models.CharField(max_length=40)
@@ -57,8 +58,8 @@ class Package(models.Model):
     state = models.CharField(choices=s, max_length=10, default="avaliable")
     transport_way = models.CharField(
         choices=t, max_length=9)
-    to_location = models.PointField(default=Point(0, 0))
-    from_location = models.PointField(default=Point(0, 0))
+    to_location = models.PointField(srid=4326, null=True, blank=True)
+    from_location = models.PointField(srid=4326, null=True, blank=True)
 
     def __str__(self):
         return self.note
