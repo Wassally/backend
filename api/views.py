@@ -77,8 +77,8 @@ class PackageViewSet(viewsets.ModelViewSet):
     filterset_fields = ('state',)
 
     def get_queryset(self):
-        token = Token.objects.get(key=self.request.auth)
-        return self.queryset.filter(owner=token.user)
+
+        return self.queryset.filter(owner=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         try:
