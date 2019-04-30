@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.utils.translation import ugettext_lazy as _
-from accounts.authentication_class import EmailOrUserNameModelBackend
+from api.authentication_class import EmailOrUserNameModelBackend
 
 
 class AuthTokenCustomSerializer (AuthTokenSerializer):

@@ -5,8 +5,8 @@ from django.views.generic.base import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
-from accounts.views import (AccountViewSet, PackageViewSet,
-                            CustomAuthTokenLogin, ComputingSalary)
+from api.views import (AccountViewSet, PackageViewSet,
+                       CustomAuthTokenLogin, ComputingSalary)
 
 router = DefaultRouter()
 router.register("accounts", AccountViewSet)

@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0013_package_location'),
+        ('api', '0013_package_location'),
     ]
 
     operations = [
@@ -19,11 +19,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='package',
             name='from_location',
-            field=django.contrib.gis.db.models.fields.PointField(default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
+            field=django.contrib.gis.db.models.fields.PointField(
+                default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
         ),
         migrations.AddField(
             model_name='package',
             name='to_location',
-            field=django.contrib.gis.db.models.fields.PointField(default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
+            field=django.contrib.gis.db.models.fields.PointField(
+                default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
         ),
     ]

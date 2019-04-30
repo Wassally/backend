@@ -4,7 +4,7 @@ from rest_framework.validators import UniqueValidator
 from drf_extra_fields.fields import Base64ImageField
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
-from accounts.models import User, Captain
+from api.models import User, Captain
 from .package_serializer import PackageSerializer
 
 

@@ -2,8 +2,8 @@ from rest_framework import serializers
 from drf_extra_fields.geo_fields import PointField
 from django.db import transaction
 from django.utils.timesince import timesince
-from accounts.models import Package, Delivery
-from accounts.logic import computing_salary
+from api.models import Package, Delivery
+from api.logic import computing_salary
 
 
 class PackageSerializer(serializers.ModelSerializer):

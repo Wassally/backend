@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0003_auto_20190406_1752'),
+        ('api', '0003_auto_20190406_1752'),
     ]
 
     operations = [
@@ -21,7 +21,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='package',
             name='state',
-            field=models.CharField(choices=[('avaliable', 'avaliable'), ('pending', 'pending')], default='avaliable', max_length=10),
+            field=models.CharField(choices=[(
+                'avaliable', 'avaliable'), ('pending', 'pending')], default='avaliable', max_length=10),
         ),
         migrations.AlterField(
             model_name='package',

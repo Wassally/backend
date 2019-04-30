@@ -6,13 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0006_auto_20190419_1347'),
+        ('api', '0006_auto_20190419_1347'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='package',
             name='transport_way',
-            field=models.CharField(choices=[('avaliable', 'avaliable'), ('pending', 'pending')], default='wassally', max_length=9),
+            field=models.CharField(choices=[(
+                'avaliable', 'avaliable'), ('pending', 'pending')], default='wassally', max_length=9),
         ),
     ]

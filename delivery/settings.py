@@ -15,7 +15,7 @@ SECRET_KEY = config.get('secrets', 'SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'api.User'
 
 ALLOWED_HOSTS = ast.literal_eval(config.get('hosts', 'allowed'))
 
@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'accounts',
+    'api',
     'rest_framework',
     'rest_framework_gis',
     'rest_framework.authtoken',

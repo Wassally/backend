@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0001_initial'),
+        ('api', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='delivery',
             name='state',
-            field=models.CharField(choices=[('phase1', 'phase1'), ('phase2', 'phase2'), ('phase3', 'phase3')], default='phase1', max_length=7),
+            field=models.CharField(choices=[('phase1', 'phase1'), ('phase2', 'phase2'), (
+                'phase3', 'phase3')], default='phase1', max_length=7),
         ),
         migrations.AlterField(
             model_name='package',
             name='state',
-            field=models.CharField(choices=[('avaliable', 'avaliable'), ('accepted', 'accepted')], default='avaliable', max_length=10),
+            field=models.CharField(choices=[(
+                'avaliable', 'avaliable'), ('accepted', 'accepted')], default='avaliable', max_length=10),
         ),
     ]

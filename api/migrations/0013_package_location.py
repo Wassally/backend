@@ -8,13 +8,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0012_auto_20190421_0332'),
+        ('api', '0012_auto_20190421_0332'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='package',
             name='location',
-            field=django.contrib.gis.db.models.fields.PointField(default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
+            field=django.contrib.gis.db.models.fields.PointField(
+                default=django.contrib.gis.geos.point.Point(0, 0), srid=4326),
         ),
     ]
