@@ -1,100 +1,12 @@
-'''Serializer for accounts.'''
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from drf_extra_fields.geo_fields import PointField
+from rest_framework.validators import UniqueValidator
+from drf_extra_fields.fields import Base64ImageField
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
-from drf_extra_fields.fields import Base64ImageField
-from .models import User, Captain, Package, Delivery, Offer
+from accounts.models import User, Captain
+from .package_serializer import PackageSerializer
 
-from api.logic import computing_salary
-from django.utils.timesince import timesince
-
-
-class OfferSerializer(serializers.ModelSerializer):
-    '''Serializer for offer system.'''
-
-    package = serializers.SlugRelatedField(
-        queryset=Package.objects.filter(state="avaliable"), slug_field="id")
-
-    class Meta:
-        model = Offer
-        fields = "__all__"
-        read_only_fields = ("created_at", "updated_at", "owner")
-        depth = 1
-
-    def create(self, validated_data):
-        validated_data["owner"] = self.context["request"].user.captain
-        offer = Offer.objects.create(**validated_data)
-        return offer
-
-
-'''creating custom offer serializer for special use for not
-                 including package on in it'''
-
-
-class OfferCustomSerializer(serializers.ModelSerializer):
-    '''Custom serializer for represent package in a good way'''
-    class Meta:
-        model = Offer
-        exclude = ("package",)
-        read_only_fields = ("created_at", "updated_at", "owner")
-        depth = 1
-# Package serializer
-
-
-class PackageSerializer(serializers.ModelSerializer):
-    '''Serializer for package.'''
-
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    related_offers = OfferCustomSerializer(many=True, read_only=True)
-    created_at = serializers.SerializerMethodField()
-    updated_at = serializers.SerializerMethodField()
-    time_since = serializers.SerializerMethodField()
-    to_location = PointField()
-    from_location = PointField()
-
-    class Meta:
-        model = Package
-        fields = "__all__"
-        read_only_fields = ("created_at", "updated_at",
-                            "state", "wassally_salary")
-        geo_field = "to_location"
-
-    def get_created_at(self, obj):
-        return obj.created_at.strftime("%d/%m/%Y")
-
-    def get_updated_at(self, obj):
-        return obj.updated_at.strftime("%d/%m/%Y")
-
-    def get_time_since(self, obj):
-        return timesince(obj.created_at)
-
-    def create(self, validated_data):
-        validated_data["owner"] = self.context["request"].user
-        # wassally_salary = validated_data["wassally_salary"]
-        to_place = validated_data["to_place"]
-        from_place = validated_data["from_place"]
-        weight = validated_data["weight"]
-        transport_way = validated_data["transport_way"]
-        expected_salary = computing_salary(to_place, from_place, weight)
-
-        package = Package.objects.create(**validated_data)
-        print(package)
-
-        if validated_data["transport_way"] == "wassally":
-            package.wassally_salary = expected_salary
-            package.transport_way = "wassally"
-            package.state = "pending"
-            package.save()
-            Delivery.objects.create(package=package, state="phase1")
-
-        return package
-
-
-# captain serializer
 
 class CaptainSerializer(serializers.ModelSerializer):
     '''Serializer for Captain'''
@@ -107,26 +19,6 @@ class CaptainSerializer(serializers.ModelSerializer):
         depth = 2
 
 
-class ClientDeliverySerializer(serializers.ModelSerializer):
-    '''serializer for clients to accept
-        offer and putting it in delvery model.'''
-
-    def get_fields(self):
-        fields = super().get_fields()
-        fields['package'].queryset = Package.objects.filter(
-            state="avaliable", owner=self.context["request"].user)
-        captains = fields['package'].queryset.values_list(
-            "related_offers__owner__id", flat=True)
-        fields['captain'].queryset = Captain.objects.filter(id__in=captains)
-        return fields
-
-    class Meta:
-        model = Delivery
-        fields = "__all__"
-        read_only_fields = ("state",)
-
-
-# user serializer
 class UserSerializer(serializers.ModelSerializer):
     '''Serializer for user.'''
     captain = CaptainSerializer(required=False)

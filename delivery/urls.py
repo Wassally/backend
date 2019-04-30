@@ -5,18 +5,13 @@ from django.views.generic.base import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
-from api.views import (AccountViewSet, PackageViewSet,
-                       CustomAuthTokenLogin, OfferViewSet,
-                       PackageCustomListViewSet, ClientAcceptViewSet,
-                       ComputingSalary)
+from accounts.views import (AccountViewSet, PackageViewSet,
+                            CustomAuthTokenLogin, ComputingSalary)
 
 router = DefaultRouter()
 router.register("accounts", AccountViewSet)
 router.register("packages", PackageViewSet)
-router.register("offers", OfferViewSet)
-router.register("packagelist", PackageCustomListViewSet,
-                basename="packagelist")
-router.register("offerconfirm", ClientAcceptViewSet, basename="offerconfirm")
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
