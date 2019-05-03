@@ -21,7 +21,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ("created_at", "updated_at",
                             "state", "wassally_salary")
-        geo_field = "to_location"
 
     def get_created_at(self, obj):
         return obj.created_at.strftime("%d/%m/%Y")
@@ -35,11 +34,11 @@ class PackageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user
         # wassally_salary = validated_data["wassally_salary"]
-        to_place = validated_data["to_place"]
-        from_place = validated_data["from_place"]
+        to_location = validated_data["to_location"]
+        from_location = validated_data["from_location"]
         weight = validated_data["weight"]
         transport_way = validated_data["transport_way"]
-        expected_salary = computing_salary(to_place, from_place, weight)
+        expected_salary = computing_salary(to_location, from_location, weight)
 
         package = Package.objects.create(**validated_data)
         print(package)

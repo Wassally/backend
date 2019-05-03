@@ -14,9 +14,14 @@ class Package(models.Model):
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
-    from_place = models.CharField(max_length=40)
-    to_place = models.CharField(max_length=40)
-    to_person = models.CharField(max_length=10)
+    from_governate = models.CharField(max_length=40)
+    from_city = models.CharField(max_length=40)
+    from_address = models.CharField(max_length=40)
+    to_governate = models.CharField(max_length=40)
+    to_city = models.CharField(max_length=40)
+    to_address = models.CharField(max_length=40)
+    receiver_name = models.CharField(max_length=40)
+    receiver_phone_number = models.CharField(max_length=14)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")
