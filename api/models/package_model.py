@@ -31,3 +31,6 @@ class Package(models.Model):
 
     def __str__(self):
         return self.note
+
+    class Meta:
+        app_label = 'api'

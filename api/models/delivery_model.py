@@ -18,6 +18,7 @@ class Delivery(models.Model):
     making that table for better manipulating with database'''
     class Meta:
         unique_together = (("package", "captain"),)
+        app_label = 'api'
 
     def __str__(self):
         return "order:%s taken by captian:%s" % (self.package, self.captain)

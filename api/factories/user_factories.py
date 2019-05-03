@@ -28,12 +28,15 @@ class ClientFactory(factory.DjangoModelFactory):
     phone_number = factory.Sequence(lambda n: "0101176018{}".format(n))
 
 
+class UserCaptainFactory(ClientFactory):
+
+    is_captain = True
+    is_client = False
+
+
 class CaptainFactory(factory.DjangoModelFactory):
     class Meta:
         model = Captain
-
-    user = factory.SubFactory(ClientFactory)
-    user.is_captain = True
-    user.is_client = False
     national_id = factory.Sequence(lambda n: '1111111{}'.format(n))
-    vehicle = factory.Faker('vehicle')
+    vehicle = "car"
+    user = factory.SubFactory(UserCaptainFactory)

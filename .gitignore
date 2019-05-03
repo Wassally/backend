@@ -10,3 +10,4 @@ config.ini
 media/
 static/
 .vscode
+.coveragerc
