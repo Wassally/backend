@@ -4,7 +4,8 @@ import ast
 from configparser import RawConfigParser
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 
 config = RawConfigParser()
 config.read(os.path.join(BASE_DIR, 'config.ini'))
