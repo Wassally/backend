@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from api.permissions import IsPostOrIsAuthenticated, IsAccountOwner
 from api.serializers import UserSerializer
 from api.models import User
+from rest_framework.response import Response
 
 
 class AccountViewSet(viewsets.ModelViewSet):
