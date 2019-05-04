@@ -4,10 +4,11 @@ import dj_database_url
 from configparser import RawConfigParser
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv('SECRET_KEY')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 
@@ -18,7 +19,7 @@ AUTH_USER_MODEL = 'api.User'
 
 ALLOWED_HOSTS = ["*"]
 
-DEBUG = False
+DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+
     "api",
     'rest_framework',
     'rest_framework_gis',
