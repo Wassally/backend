@@ -26,6 +26,7 @@ class ClientFactory(factory.DjangoModelFactory):
     governate = faker.Faker('ar_EG').country()
     city = faker.Faker('ar_EG').city()
     phone_number = factory.Sequence(lambda n: "0101176018{}".format(n))
+    password = 1
 
 
 class UserCaptainFactory(ClientFactory):
