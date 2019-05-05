@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
+from rest_framework import status
 from drf_extra_fields.fields import Base64ImageField
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
@@ -31,6 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())])
     is_captain = serializers.BooleanField(required=True)
     is_client = serializers.BooleanField(required=True)
+    governate = serializers.CharField(required=False)
+    city = serializers.CharField(required=False)
 
     class Meta:
         model = User
