@@ -1,6 +1,7 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from api.factories import ClientFactory, CaptainFactory
 
 
@@ -47,3 +48,14 @@ class AccountTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(response.json().get('is_client'))
         self.assertTrue(response.json().get('is_captain'))
+
+    def test_retrieve_all_accounts(self):
+        '''Retriving all Accounts'''
+
+        client = ClientFactory()
+        token = Token.objects.create(user=client)
+        captain = CaptainFactory()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = self.client.get(reverse('accounts-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
