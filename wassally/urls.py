@@ -15,8 +15,8 @@ from api.views import (AccountViewSet,
 
 
 router = DefaultRouter()
-router.register("accounts", AccountViewSet)
-router.register("packages", PackageViewSet)
+router.register("accounts", AccountViewSet, base_name='accounts')
+router.register("packages", PackageViewSet, base_name='packages')
 
 
 urlpatterns = [
