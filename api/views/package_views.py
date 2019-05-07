@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import permissions, viewsets
 from rest_framework import filters
 from rest_framework.response import Response

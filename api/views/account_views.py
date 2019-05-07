@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import viewsets
 from api.permissions import IsPostOrIsAuthenticated, IsAccountOwner
 from api.serializers import UserSerializer
