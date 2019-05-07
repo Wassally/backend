@@ -98,3 +98,15 @@ class AccountTest(APITestCase):
         self.assertTrue(
             User.objects.get(id=client.id).check_password(data.get('password'))
         )
+
+    def test_deleting_account_as_client(self):
+        ''' Delete request off the account as client '''
+        client = ClientFactory()
+        token = Token.objects.create(user=client)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = self.client.delete(
+            reverse('accounts-detail',
+                    kwargs={"pk": client.id})
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
