@@ -62,9 +62,9 @@ class AccountTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-    def test_modify_accounts_as_owner(self):
+    def test_modify_accounts_as_client(self):
         ''' Patch request testing from the owner of the account '''
-        user = get_user_model()
+        User = get_user_model()
         fake = Faker()
         client = ClientFactory()
         token = Token.objects.create(user=client)
@@ -95,3 +95,6 @@ class AccountTest(APITestCase):
         self.assertEqual(response.json().get('governate'),
                          data.get('governate'))
         # i will check for password put it will need some research
+        self.assertTrue(
+            User.objects.get(id=client.id).check_password(data.get('password'))
+        )
