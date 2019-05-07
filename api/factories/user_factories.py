@@ -1,8 +1,8 @@
 import os
+from django.conf import settings
 import factory
-from ..models import User, Captain
-from wassally.settings import MEDIA_ROOT
 import faker
+from ..models import User, Captain
 
 
 class ClientFactory(factory.DjangoModelFactory):
@@ -10,7 +10,7 @@ class ClientFactory(factory.DjangoModelFactory):
         model = User
 
     image = factory.django.ImageField(
-        from_path=os.path.join(MEDIA_ROOT, "default.png"),
+        from_path=os.path.join(settings.MEDIA_ROOT, "default.png"),
         format="png"
     )
     first_name = factory.Faker('first_name')
@@ -26,7 +26,7 @@ class ClientFactory(factory.DjangoModelFactory):
     governate = faker.Faker('ar_EG').country()
     city = faker.Faker('ar_EG').city()
     phone_number = factory.Sequence(lambda n: "0101176018{}".format(n))
-    password = 1
+    password = factory.PostGenerationMethodCall('set_password', 'test')
 
 
 class UserCaptainFactory(ClientFactory):
