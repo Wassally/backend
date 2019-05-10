@@ -25,7 +25,6 @@ class Package(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")
-    duration = models.CharField(default="Not Specified", max_length=50)
     wassally_salary = models.IntegerField(default=0)
     weight = models.IntegerField(default=0)
     state = models.CharField(choices=s, max_length=10, default="avaliable")
@@ -33,6 +32,7 @@ class Package(models.Model):
         choices=t, max_length=9)
     to_location = models.PointField(srid=4326, null=True, blank=True)
     from_location = models.PointField(srid=4326, null=True, blank=True)
+    duration = models.IntegerField()
 
     def __str__(self):
         return self.note
