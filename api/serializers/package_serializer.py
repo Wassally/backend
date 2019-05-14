@@ -16,7 +16,6 @@ class PackageSerializer(serializers.ModelSerializer):
     time_since = serializers.SerializerMethodField()
     to_location = PointField()
     from_location = PointField()
-    sender_phone_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
@@ -32,9 +31,6 @@ class PackageSerializer(serializers.ModelSerializer):
 
     def get_time_since(self, obj):
         return timesince(obj.created_at)
-
-    def get_sender_phone_number(self, obj):
-        return obj.owner.phone_number
 
     def create(self, validated_data):
         validated_data["owner"] = self.context["request"].user

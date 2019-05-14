@@ -22,6 +22,7 @@ class Package(models.Model):
     to_address = models.CharField(max_length=40)
     receiver_name = models.CharField(max_length=40)
     receiver_phone_number = models.CharField(max_length=14)
+    sender_phone_number = models.CharField(max_length=14)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")

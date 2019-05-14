@@ -9,7 +9,7 @@ class User(AbstractUser):
     is_client = models.BooleanField(default=False)
     governate = models.CharField(max_length=40)
     city = models.CharField(max_length=40)
-    phone_number = models.CharField(default="0", max_length=14)
+    phone_number = models.CharField(max_length=14, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(
