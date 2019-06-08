@@ -25,7 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
     captain = CaptainSerializer(required=False)
     password = serializers.CharField(write_only=True)
     image = Base64ImageField(required=False)
-    password_updated_message = serializers.SerializerMethodField()
     packages = PackageSerializer(many=True, read_only=True)
     email = serializers.EmailField(
         allow_blank=False, required=True,
@@ -38,30 +37,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', "auth_token", 'email', 'username', 'created_at',
+            'id', 'email', 'username', 'created_at',
             'updated_at', 'first_name', 'last_name', 'password',
-            "password_updated_message", 'is_captain',
-            'is_client', "governate", "city",
+            'is_captain', 'is_client', "governate", "city",
             "phone_number", 'captain', "image", "packages")
-        read_only_fields = ("created_at", "updated_at", "auth_token")
-
-    # function for insertinf filed message to insure that password was updated
-    def get_password_updated_message(self, obj):
-        '''validate on message filed for updating password'''
-        try:
-            self.initial_data
-        except AttributeError:
-            return None
-        if not self.initial_data.get("password", None):
-            return "password not updated"
-        return "password created successfully"
-
-    def to_representation(self, instance):
-        '''method for including tokens in post requests only '''
-        obj = super().to_representation(instance)
-        if self.context["request"].method != "POST":
-            obj['auth_token'] = None
-        return obj
+        read_only_fields = ("created_at", "updated_at")
 
     @transaction.atomic
     def create(self, validated_data):
@@ -111,3 +91,14 @@ class UserSerializer(serializers.ModelSerializer):
             instance.save()
 
         return instance
+
+
+class UserCreateSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id', "auth_token", 'email', 'username', 'created_at',
+            'updated_at', 'first_name', 'last_name', 'password',
+            'is_captain', 'is_client', "governate", "city",
+            "phone_number", 'captain', "image", "packages")
+        read_only_fields = ("created_at", "updated_at", "auth_token")
