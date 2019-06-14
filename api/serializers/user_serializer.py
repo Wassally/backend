@@ -119,7 +119,10 @@ class UserCreateSerializer(UserSerializer):
     def create(self, validated_data):
         try:
             user = self.perform_create(validated_data)
-        except ValidationError:
+        except serializers.ValidationError as e:
+            return (e)
+
+        except IntegrityError:
             self.fail('create_error')
 
         return user
