@@ -42,7 +42,6 @@ class PackageSerializer(serializers.ModelSerializer):
         expected_salary = computing_salary(to_location, from_location, weight)
 
         package = Package.objects.create(**validated_data)
-        print(package)
 
         if validated_data["transport_way"] == "wassally":
             package.wassally_salary = expected_salary
