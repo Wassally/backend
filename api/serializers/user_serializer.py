@@ -116,6 +116,13 @@ class UserCreateSerializer(UserSerializer):
                     api_settings.NON_FIELD_ERRORS_KEY]
             })
 
+        is_client = attrs.get('is_client')
+        is_captain = attrs.get('is_captain')
+        if is_captain == is_client:
+            raise serializers.ValidationError("must be captain or client")
+
+        return attrs
+
     def create(self, validated_data):
         try:
             user = self.perform_create(validated_data)
@@ -131,9 +138,8 @@ class UserCreateSerializer(UserSerializer):
     def perform_create(self, validated_data):
 
         captain_data = validated_data.pop("captain", None)
-        if validated_data.get("is_client") == validated_data.get("is_captain"):
-            raise serializers.ValidationError("must be captain or client")
-        elif validated_data.get("is_client"):
+
+        if validated_data.get("is_client"):
             user = User.objects.create_user(**validated_data)
         elif validated_data.get("is_captain"):
             user = User.objects.create_user(**validated_data)
