@@ -2,41 +2,26 @@ from django.contrib.gis.db import models
 from . import User, Package
 
 
-class SourceAddress(models.Model):
-    ''' abstract base model for main filed of address '''
+class Address(models.Model):
+    ''' model for saving location'''
 
-    governate = models.CharField(max_length=40, blank=True, null=True)
-    city = models.CharField(max_length=40, blank=True, null=True)
-    location = models.PointField(srid=4326)
-
-    class Meta:
-        abstract = True
+    governate = models.CharField(max_length=40, null=True, blank=True)
+    city = models.CharField(max_length=40, null=True, blank=True)
+    location = models.PointField()
+    clients = models.ManyToManyField(User, through="ClientAddress")
 
 
-class DestinationAddress(SourceAddress):
-    ''' abstract base model for main filed of destination address '''
-
-    receiver_name = models.CharField(max_length=40)
-    receiver_phone_number = models.CharField(max_length=14)
-
-    class Meta:
-        abstract = True
+class ClientAddress(models.Model):
+    ''' Through Table for m2m '''
+    client = models.ForeignKey(User, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
 
-class ClientAddress(SourceAddress):
-    ''' model for saving location of  user '''
+class PackageAddress(models.Model):
 
-    client = models.ForeignKey(
-        User, related_name="address", on_delete=models.CASCADE)
-
-
-class PackageAddress(DestinationAddress):
     ''' model for saving the address of package '''
-
-    client_address = models.ForeignKey(
-        ClientAddress, related_name="from_address", on_delete=models.CASCADE)
-    package = models.ForeignKey(
-        Package, related_name="package_address", on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ['client_address', 'package']
+    package = models.OneToOneField(Package, on_delete=models.CASCADE)
+    from_address = models.ForeignKey(
+        Address, related_name="fromaddress", on_delete=models.CASCADE)
+    to_address = models.ForeignKey(
+        Address, related_name="toaddress", on_delete=models.CASCADE)

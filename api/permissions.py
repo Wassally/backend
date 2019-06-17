@@ -1,11 +1,12 @@
 from rest_framework import permissions
+from api.models import Delivery
 
 
 class IsAccountOwner(permissions.BasePermission):
     def has_permission(self, request, view):
+
         return True
 
-    def has_object_permission(self, request, view, account):
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.user:
@@ -22,6 +23,9 @@ class IsPostOrIsAuthenticated(permissions.BasePermission):
 
 class IsClientAndOwner(permissions.BasePermission):
     def has_permission(self, request, view):
+        if request.method == "PATCH":
+            return False
+
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.user.is_client:
@@ -33,7 +37,11 @@ class IsClientAndOwner(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.user == package.owner:
-            return package.state == "avaliable"
+            try:
+                delivery = Delivery.objects.get(package=package)
+                return delivery.state == "phase1"
+            except:
+                return False
         return False
 
 

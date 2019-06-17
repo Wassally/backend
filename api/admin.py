@@ -8,6 +8,4 @@ admin.site.register(Captain)
 admin.site.register(Delivery)
 
 
-@admin.register(Package)
-class PackageAdmin(OSMGeoAdmin):
-    list_display = ('from_location',)
+

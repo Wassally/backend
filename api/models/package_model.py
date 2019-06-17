@@ -15,7 +15,9 @@ class Package(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="packages")
 
-    sender_phone_number = models.CharField(max_length=14)
+    receiver_phone_number = models.CharField(max_length=14)
+
+    receiver_name = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     note = models.CharField(max_length=250, default="no note")
