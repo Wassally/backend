@@ -7,6 +7,7 @@ class IsAccountOwner(permissions.BasePermission):
 
         return True
 
+    def has_object_permission(self, request, view, account):
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.user:
@@ -23,8 +24,6 @@ class IsPostOrIsAuthenticated(permissions.BasePermission):
 
 class IsClientAndOwner(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method == "PATCH":
-            return False
 
         if request.method in permissions.SAFE_METHODS:
             return True
