@@ -1,6 +1,6 @@
 from django.db import transaction, IntegrityError
 from django.utils.timesince import timesince
-from django.db.models import F
+
 
 from rest_framework import serializers
 from rest_framework import status
@@ -37,6 +37,22 @@ class PackageSerializer(serializers.ModelSerializer):
         'create_error': 'can not create package '
     }
 
+    def validate_packageaddress(self, value):
+        ''' validation required for update so user can not 
+        update city or governate only he must specify the location '''
+
+        if value.get("to_address") and \
+                not(value.get("to_address").get('location')):
+            raise serializers.ValidationError(
+                {"to_address": {"location": "this field is required"}})
+
+        elif value.get("from_address").get('location') and \
+                not (value.get("from_address").get('location')):
+            raise serializers.ValidationError(
+                {"from_address": {"location": "this field is required"}})
+
+        return value
+
     def get_created_at(self, obj):
         return obj.created_at.strftime("%d/%m/%Y")
 
@@ -64,13 +80,12 @@ class PackageSerializer(serializers.ModelSerializer):
         package = Package.objects.create(**validated_data)
 
         if validated_data["transport_way"] == "wassally":
-            package.wassally_salary = 0
             package.transport_way = "wassally"
             package.state = "pending"
             package.save()
             Delivery.objects.create(package=package, state="phase1")
-            to_address = Address.objects.create(**to_address)
-            from_address = Address.objects.create(**from_address)
+            to_address, _ = Address.objects.get_or_create(**to_address)
+            from_address, _ = Address.objects.get_or_create(**from_address)
             PackageAddress.objects.create(package=package,
                                           to_address=to_address,
                                           from_address=from_address
@@ -82,7 +97,11 @@ class PackageSerializer(serializers.ModelSerializer):
         weight, transport_way, to_address, from_address = \
             self.cleaning_validated_data(validated_data)
 
-        # i will compute it later
+        if to_address:
+            self.updating_address_model(instance, to_address)
+        if from_address:
+            self.updating_address_model(instance, from_address)
+
         instacne = super().update(instance, validated_data)
 
         return instacne
@@ -101,3 +120,32 @@ class PackageSerializer(serializers.ModelSerializer):
             to_address = None
             from_address = None
         return (weight, transport_way, to_address, from_address)
+
+    def updating_address_model(self, instance,
+                               from_address=None, to_address=None):
+        ''' updating address model  '''
+
+        if to_address:
+            instacne_address = instance.packageaddress.to_address
+            address = to_address
+        elif from_address:
+            instacne_address = instance.packageaddress.from_address
+            address = from_address
+
+        try:
+            existed_add = Address.objects.get(location=address.get('location'))
+            instacne_address = existed_add
+            instacne_address.save()
+            return instacne_address
+
+        except:
+
+            if address.get('city'):
+                instacne_address.city = address.get('city')
+            if address.get('governate'):
+                instacne_address.governate = address.get('governate')
+            if address.get('location'):
+                instacne_address.location = address.get('location')
+
+            instacne_address.save()
+            return instacne_address
