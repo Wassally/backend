@@ -7,7 +7,8 @@ class Address(models.Model):
 
     governate = models.CharField(max_length=40, null=True, blank=True)
     city = models.CharField(max_length=40, null=True, blank=True)
-    location = models.PointField()
+    street = models.CharField(max_length=100, null=True, blank=True)
+    location = models.PointField(unique=True, null=True)
     clients = models.ManyToManyField(User, through="ClientAddress")
 
 
