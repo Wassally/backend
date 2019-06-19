@@ -32,5 +32,9 @@ class Package(models.Model):
     def __str__(self):
         return self.note
 
+    def save(self, * args, **kwargs):
+        self.wassally_salary = 11
+        super().save(* args, **kwargs)
+
     class Meta:
         app_label = 'api'
