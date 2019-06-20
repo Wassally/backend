@@ -8,7 +8,7 @@ from rest_framework import status
 from drf_extra_fields.geo_fields import PointField
 
 from api.models import Package, Delivery, Address, PackageAddress
-from api.logic import computing_salary
+
 
 from .address_serializer import AddressSerializer, PackageAddressSerializer
 
@@ -138,14 +138,14 @@ class PackageSerializer(serializers.ModelSerializer):
             instacne_address.save()
             return instacne_address
 
-        except:
+        except Address.DoesNotExist:
+            instacne_address.city = address.get('city', instacne_address.city)
 
-            if address.get('city'):
-                instacne_address.city = address.get('city')
-            if address.get('governate'):
-                instacne_address.governate = address.get('governate')
-            if address.get('location'):
-                instacne_address.location = address.get('location')
+            instacne_address.governate = address.get(
+                'governate', instacne_address.governate)
+
+            instacne_address.location = address.get(
+                'location', instacne_address.location)
 
             instacne_address.save()
             return instacne_address
