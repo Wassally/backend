@@ -7,8 +7,6 @@ class User(AbstractUser):
 
     is_captain = models.BooleanField(default=False)
     is_client = models.BooleanField(default=False)
-    governate = models.CharField(max_length=40)
-    city = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(
