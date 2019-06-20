@@ -24,6 +24,7 @@ class PackageViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(owner=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
+        print("yes")
         try:
             obj = self.get_object()
             self.perform_destroy(obj)
