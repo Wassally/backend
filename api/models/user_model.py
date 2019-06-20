@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.contrib.gis.db import models
+from django.db import models
 
 
 class User(AbstractUser):
@@ -9,7 +9,6 @@ class User(AbstractUser):
     is_client = models.BooleanField(default=False)
     governate = models.CharField(max_length=40)
     city = models.CharField(max_length=40)
-    phone_number = models.CharField(max_length=14, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(

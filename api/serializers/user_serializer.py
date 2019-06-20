@@ -45,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'email', 'username', 'created_at',
             'updated_at', 'first_name', 'last_name',
             'is_captain', 'is_client', "governate", "city",
-            "phone_number", 'captain', "image", "packages")
+            'captain', "image", "packages")
         read_only_fields = ("created_at", "updated_at",
                             'is_captain', 'is_client')
 
@@ -67,6 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def perform_update(self, instance, validated_data):
         captain_data = validated_data.pop("captain", None)
+
         if instance.is_client:
             instance = super().update(instance, validated_data)
 
@@ -98,11 +99,12 @@ class UserCreateSerializer(UserSerializer):
             'id', "auth_token", 'email', 'username', 'created_at',
             'updated_at', 'first_name', 'last_name', 'password',
             'is_captain', 'is_client', "governate", "city",
-            "phone_number", 'captain', "image", "packages")
+            'captain', "image", "packages")
         read_only_fields = ("created_at", "updated_at", "auth_token")
         write_only_fields = ('password',)
 
     def validate(self, attrs):
+
         user = User(**attrs)
         password = attrs.get('password')
 
@@ -129,8 +131,8 @@ class UserCreateSerializer(UserSerializer):
         except serializers.ValidationError as e:
             return (e)
 
-        except IntegrityError:
-            self.fail('create_error')
+        except IntegrityError as e:
+            return (e)
 
         return user
 

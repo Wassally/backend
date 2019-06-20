@@ -1,4 +1,4 @@
-from django.contrib.gis.db import models
+from django.db import models
 from .package_model import Package
 from .user_model import Captain
 
