@@ -11,7 +11,7 @@ class Delivery(models.Model):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name="orders", default=0)
     captain = models.ForeignKey(
-        Captain, on_delete=models.PROTECT, related_name="captains", null=True)
+        Captain, on_delete=models.CASCADE, related_name="captains", null=True)
     state = models.CharField(choices=s, max_length=7, default="phase1")
 
     ''' making cap and order unique and

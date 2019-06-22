@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from drf_extra_fields.geo_fields import PointField
 
-from ..models import Address, PackageAddress
+from ..models import Address, PackageAddress, ClientAddress
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -12,21 +12,25 @@ class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Address
-        fields = ('location', 'governate', 'city')
+        fields = ('id', 'formated_address', 'location', 'address_description')
 
 
 class PackageAddressSerializer(serializers.ModelSerializer):
     ''' serializer for package address used as a field '''
 
-    to_address = AddressSerializer(many=False)
-    from_address = AddressSerializer(many=False)
+    to_address = AddressSerializer()
+    from_address = AddressSerializer()
 
     class Meta:
         model = PackageAddress
         fields = ('to_address', 'from_address')
 
 
-#     class Meta:
-#         model = PackageAddress
-#         fields = ("client_address", "location", "governate", "city",
-#                   "receiver_name", "receiver_phone_number")
+class ClientAddressSerializer(serializers.ModelSerializer):
+    ''' serializer for  client  address description used as a field '''
+
+    address = AddressSerializer()
+
+    class Meta:
+        model = ClientAddress
+        fields = ('address',)

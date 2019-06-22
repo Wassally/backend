@@ -11,8 +11,9 @@ from rest_framework.settings import api_settings
 from drf_extra_fields.fields import Base64ImageField
 
 
-from api.models import User, Captain
-from .package_serializer import PackageSerializer
+from api.models import User, Captain, Address, ClientAddress
+from . import PackageSerializer
+from .address_serializer import ClientAddressSerializer
 
 
 class CaptainSerializer(serializers.ModelSerializer):
@@ -36,15 +37,14 @@ class UserSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())])
     is_captain = serializers.BooleanField(required=True)
     is_client = serializers.BooleanField(required=True)
-    governate = serializers.CharField(required=False)
-    city = serializers.CharField(required=False)
+    user_addresses = ClientAddressSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
         fields = (
             'id', 'email', 'username', 'created_at',
-            'updated_at', 'first_name', 'last_name',
-            'is_captain', 'is_client', "governate", "city",
+            'updated_at', 'first_name', 'last_name', 'phone_number'
+            'is_captain', 'is_client', 'user_addresses',
             'captain', "image", "packages")
         read_only_fields = ("created_at", "updated_at",
                             'is_captain', 'is_client')
@@ -98,15 +98,17 @@ class UserCreateSerializer(UserSerializer):
         fields = (
             'id', "auth_token", 'email', 'username', 'created_at',
             'updated_at', 'first_name', 'last_name', 'password',
-            'is_captain', 'is_client', "governate", "city",
+            'phone_number', 'is_captain', 'is_client', 'user_addresses',
             'captain', "image", "packages")
-        read_only_fields = ("created_at", "updated_at", "auth_token")
+        read_only_fields = ("created_at", "updated_at",
+                            "auth_token")
         write_only_fields = ('password',)
 
     def validate(self, attrs):
-
+        captain = attrs.pop('captain', None)
         user = User(**attrs)
         password = attrs.get('password')
+        attrs['captain'] = captain
 
         try:
             validate_password(password, user)
@@ -132,7 +134,7 @@ class UserCreateSerializer(UserSerializer):
             return (e)
 
         except IntegrityError as e:
-            return (e)
+            self.fail('create_error')
 
         return user
 
@@ -140,6 +142,7 @@ class UserCreateSerializer(UserSerializer):
     def perform_create(self, validated_data):
 
         captain_data = validated_data.pop("captain", None)
+        user_addresses = validated_data.pop('user_addresses', None)
 
         if validated_data.get("is_client"):
             user = User.objects.create_user(**validated_data)

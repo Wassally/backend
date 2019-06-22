@@ -7,6 +7,8 @@ from rest_framework import status
 
 from drf_extra_fields.geo_fields import PointField
 
+from geopy.distance import vincenty
+
 from api.models import Package, Delivery, Address, PackageAddress
 
 
@@ -14,20 +16,19 @@ from .address_serializer import AddressSerializer, PackageAddressSerializer
 
 
 class PackageSerializer(serializers.ModelSerializer):
-    '''Serializer for package.'''
-
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
     created_at = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
     time_since = serializers.SerializerMethodField()
-    packageaddress = PackageAddressSerializer(many=False)
+    package_address = PackageAddressSerializer(many=False,
+                                               source='packageaddress')
 
     class Meta:
         model = Package
-        fields = ('id', 'owner', 'receiver_name', 'receiver_phone_number',
-                  'note', 'weight', 'transport_way', 'duration',
-                  'created_at', 'updated_at',
-                  'time_since', "state", "wassally_salary", 'packageaddress')
+        fields = ('id', 'owner', 'sender_phone_number', 'receiver_name',
+                  'receiver_phone_number', 'note', 'weight', 'transport_way',
+                  'duration', 'created_at', 'updated_at', 'time_since',
+                  "state", "wassally_salary", 'package_address')
 
         read_only_fields = ("created_at", "updated_at",
                             "state", "wassally_salary")
@@ -37,22 +38,6 @@ class PackageSerializer(serializers.ModelSerializer):
         'create_error': 'can not create package '
     }
 
-    def validate_packageaddress(self, value):
-        ''' validation required for update so user can not 
-        update city or governate only he must specify the location '''
-
-        if value.get("to_address") and \
-                not(value.get("to_address").get('location')):
-            raise serializers.ValidationError(
-                {"to_address": {"location": "this field is required"}})
-
-        elif value.get("from_address").get('location') and \
-                not (value.get("from_address").get('location')):
-            raise serializers.ValidationError(
-                {"from_address": {"location": "this field is required"}})
-
-        return value
-
     def get_created_at(self, obj):
         return obj.created_at.strftime("%d/%m/%Y")
 
@@ -61,6 +46,48 @@ class PackageSerializer(serializers.ModelSerializer):
 
     def get_time_since(self, obj):
         return timesince(obj.created_at)
+
+    def cleaning_validated_data(self, validated_data):
+        ''' cleaning and parsing the validated data '''
+
+        validated_data["owner"] = self.context["request"].user
+        weight = validated_data.get("weight", None)
+        transport_way = validated_data.get("transport_way", None)
+        package_address = validated_data.pop("packageaddress", None)
+
+        if package_address:
+            to_address = package_address.get('to_address', None)
+            from_address = package_address.get('from_address', None)
+        else:
+            to_address = None
+            from_address = None
+
+        return (weight, transport_way, to_address, from_address)
+
+    def distance_between_points(self, point1, point2):
+        distance = vincenty(point1.coords, point2.coords).kilometers
+        if distance < 2:
+            raise serializers.ValidationError(
+                {"message": 'the distance should be grater than 2 km'})
+        return True
+
+
+class PackageCreateSerializer(PackageSerializer):
+    '''Serializer for package.'''
+
+    def validate(self, attrs):
+
+        from_address_location = attrs.get('packageaddress').get(
+            'from_address').get('location')
+
+        to_address_location = attrs.get('packageaddress').get(
+            'to_address').get('location')
+
+        if from_address_location and to_address_location:
+            self.distance_between_points(
+                from_address_location, to_address_location)
+
+        return attrs
 
     def create(self, validated_data):
 
@@ -84,68 +111,51 @@ class PackageSerializer(serializers.ModelSerializer):
             package.state = "pending"
             package.save()
             Delivery.objects.create(package=package, state="phase1")
-            to_address, _ = Address.objects.get_or_create(**to_address)
-            from_address, _ = Address.objects.get_or_create(**from_address)
-            PackageAddress.objects.create(package=package,
-                                          to_address=to_address,
-                                          from_address=from_address
-                                          )
+
+        to_address = Address.objects.create(**to_address)
+        from_address = Address.objects.create(**from_address)
+        PackageAddress.objects.create(to_address=to_address,
+                                      from_address=from_address,
+                                      package=package)
         return package
+
+
+class PackageUpdateSerializer (PackageSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
+
         weight, transport_way, to_address, from_address = \
             self.cleaning_validated_data(validated_data)
 
-        if to_address:
-            self.updating_address_model(instance, to_address)
-        if from_address:
-            self.updating_address_model(instance, from_address)
-
         instacne = super().update(instance, validated_data)
+
+        if to_address:
+            self.updating_address_model(instacne, to_address=to_address)
+        if from_address:
+            self.updating_address_model(instance, from_address=from_address)
 
         return instacne
 
-    def cleaning_validated_data(self, validated_data):
-        ''' cleaning and parsing the validated data '''
-
-        validated_data["owner"] = self.context["request"].user
-        packageaddress = validated_data.pop('packageaddress', None)
-        weight = validated_data.get("weight", None)
-        transport_way = validated_data.get("transport_way", None)
-        if packageaddress:
-            to_address = packageaddress.get("to_address", None)
-            from_address = packageaddress.get("from_address", None)
-        else:
-            to_address = None
-            from_address = None
-        return (weight, transport_way, to_address, from_address)
-
-    def updating_address_model(self, instance,
-                               from_address=None, to_address=None):
-        ''' updating address model  '''
+    def updating_address_model(self, package,
+                               to_address=None, from_address=None):
 
         if to_address:
-            instacne_address = instance.packageaddress.to_address
             address = to_address
+            instace_address = package.packageaddress.to_address
         elif from_address:
-            instacne_address = instance.packageaddress.from_address
             address = from_address
+            instace_address = package.packageaddress.from_address
 
-        try:
-            existed_add = Address.objects.get(location=address.get('location'))
-            instacne_address = existed_add
-            instacne_address.save()
-            return instacne_address
+        instace_address.formated_address = address.get(
+            'formated_address', instace_address.formated_address)
 
-        except Address.DoesNotExist:
-            instacne_address.city = address.get('city', instacne_address.city)
+        instace_address.location = address.get(
+            'location', instace_address.location)
 
-            instacne_address.governate = address.get(
-                'governate', instacne_address.governate)
+        instace_address.address_description = address.get(
+            'address_description', instace_address.address_description)
 
-            instacne_address.location = address.get(
-                'location', instacne_address.location)
+        instace_address.save()
 
-            instacne_address.save()
-            return instacne_address
+        return instace_address
