@@ -145,7 +145,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 AZURE_ACCOUNT_NAME = "wassallyaccount"
 AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
-AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY ')
+AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
 AZURE_CONTAINER ='media'
 
 MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
