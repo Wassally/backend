@@ -2,6 +2,7 @@
 import os
 import ast
 from configparser import RawConfigParser
+import test
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(
@@ -140,14 +141,18 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
+MEDIA_LOCATION = "media"
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-STATICFILES_DIRS = [
-    #os.path.join(BASE_DIR, "static_storage"),
-]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+AZURE_ACCOUNT_NAME = "wassallyaccount"
+AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+AZURE_ACCOUNT_KEY = config.get('access-key','AZURE_ACCOUNT_KEY')
+AZURE_CONTAINER ='media'
+
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
+

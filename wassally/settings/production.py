@@ -19,7 +19,7 @@ AUTH_USER_MODEL = 'api.User'
 
 ALLOWED_HOSTS = ["*"]
 
-DEBUG = True
+DEBUG = False
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -132,16 +132,23 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
+
+
+
+MEDIA_LOCATION = "media"
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-STATICFILES_DIRS = [
-    #os.path.join(BASE_DIR, "static_storage"),
-]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+AZURE_ACCOUNT_NAME = "wassallyaccount"
+AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY ')
+AZURE_CONTAINER ='media'
+
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
+
 django_heroku.settings(locals())
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
