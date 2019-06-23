@@ -2,6 +2,9 @@ from django.contrib.gis.db import models
 from . import User, Package
 from django.contrib.gis.geos import Point
 
+from rest_framework import serializers
+from geopy.distance import vincenty
+
 
 class Address(models.Model):
     ''' model for saving location'''

@@ -135,6 +135,15 @@ class PackageUpdateSerializer (PackageSerializer):
         if from_address:
             self.updating_address_model(instance, from_address=from_address)
 
+        if to_address or from_address:
+            self.distance_between_points(
+                instacne.packageaddress.to_address.location,
+                instacne.packageaddress.from_address.location
+            )
+            instacne.packageaddress.to_address.save()
+            instacne.packageaddress.from_address.save()
+            instacne.save()
+
         return instacne
 
     def updating_address_model(self, package,
@@ -155,7 +164,5 @@ class PackageUpdateSerializer (PackageSerializer):
 
         instace_address.address_description = address.get(
             'address_description', instace_address.address_description)
-
-        instace_address.save()
 
         return instace_address
