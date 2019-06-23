@@ -19,7 +19,7 @@ AUTH_USER_MODEL = 'api.User'
 
 ALLOWED_HOSTS = ["*"]
 
-DEBUG = False
+DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
