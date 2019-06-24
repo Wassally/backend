@@ -20,13 +20,3 @@ class AccountViewSet(viewsets.ModelViewSet):
         if self.request.method == "POST":
             serializer_class = UserCreateSerializer
         return serializer_class
-
-    def destroy(self, request, *args, **kwargs):
-        try:
-            obj = self.get_object()
-            self.perform_destroy(obj)
-            return Response({"message": "the object was deleted"},
-                            status=status.HTTP_204_NO_CONTENT)
-        except Http404:
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
