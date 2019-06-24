@@ -34,3 +34,14 @@ class ClientAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientAddress
         fields = ('address',)
+
+
+class ClientAddressEndPointSerializer(AddressSerializer):
+    ''' serializer for client Address  '''
+
+    def create(self, validated_data):
+        address = super().create(validated_data)
+        user = self.context["request"].user
+        ClientAddress.objects.create(user=user, address=address)
+
+        return address

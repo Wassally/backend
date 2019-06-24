@@ -3,4 +3,5 @@ from .package_serializer import (PackageCreateSerializer,
                                  PackageSerializer)
 from .token_custom_serializer import AuthTokenCustomSerializer
 from .user_serializer import UserSerializer, UserCreateSerializer
-from .address_serializer import ClientAddressSerializer
+from .address_serializer import (ClientAddressSerializer,
+                                 ClientAddressEndPointSerializer)

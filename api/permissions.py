@@ -3,9 +3,6 @@ from api.models import Delivery
 
 
 class IsAccountOwner(permissions.BasePermission):
-    def has_permission(self, request, view):
-
-        return True
 
     def has_object_permission(self, request, view, account):
         if request.method in permissions.SAFE_METHODS:
@@ -53,4 +50,11 @@ class IsOfferOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, offer):
         if request.user.captain:
             return offer.owner == request.user.captain
+        return False
+
+
+class IsAddressOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, address):
+        if address.clientaddress.user == request.user:
+            return True
         return False

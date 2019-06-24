@@ -10,12 +10,15 @@ from rest_framework.routers import DefaultRouter
 from api.views import (AccountViewSet,
                        PackageViewSet,
                        CustomAuthTokenLogin,
+                       ClientAddressViewSet
                        )
 
 
 router = DefaultRouter()
 router.register("accounts", AccountViewSet, base_name='accounts')
 router.register("packages", PackageViewSet, base_name='packages')
+router.register("clientaddress", ClientAddressViewSet,
+                base_name='clientaddress')
 
 
 urlpatterns = [
