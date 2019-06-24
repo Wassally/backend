@@ -19,14 +19,14 @@ class ClientAddress(models.Model):
     ''' model for client address'''
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='user_addresses')
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.OneToOneField(Address, on_delete=models.CASCADE)
 
 
 class PackageAddress(models.Model):
 
     ''' model for saving the address of package '''
     package = models.OneToOneField(Package, on_delete=models.CASCADE)
-    from_address = models.ForeignKey(
+    from_address = models.OneToOneField(
         Address, related_name="fromaddress", on_delete=models.CASCADE)
-    to_address = models.ForeignKey(
+    to_address = models.OneToOneField(
         Address, related_name="toaddress", on_delete=models.CASCADE, default=1)
