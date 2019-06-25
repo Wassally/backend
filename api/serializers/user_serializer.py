@@ -169,6 +169,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         old_password = attrs['old_password']
         new_password = attrs['new_password']
 
+        if old_password == new_password:
+            raise serializers.ValidationError({
+                'new_password': 'new password is the same your old password'
+            })
+
         if user.check_password(old_password):
 
             try:
