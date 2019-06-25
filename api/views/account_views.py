@@ -1,8 +1,11 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import list_route
 
 from api.permissions import IsPostOrIsAuthenticated, IsAccountOwner
 from api.serializers import (UserSerializer,
@@ -24,6 +27,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         if self.request.method == "POST":
             serializer_class = UserCreateSerializer
         return serializer_class
+
+    @list_route(methods=['GET'], permission_classes=[IsAuthenticated])
+    def me(self, request, *args, **kwargs):
+        self.kwargs.update(pk=request.user.id)
+        return self.retrieve(request, *args, **kwargs)
 
 
 @api_view(['POSt'])
