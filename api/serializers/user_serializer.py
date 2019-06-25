@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 from rest_framework import status
 from rest_framework.settings import api_settings
+from rest_framework.fields import CurrentUserDefault
 
 from drf_extra_fields.fields import Base64ImageField
 
@@ -156,3 +157,31 @@ class UserCreateSerializer(UserSerializer):
         Token.objects.create(user=user)
 
         return user
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        old_password = attrs['old_password']
+        new_password = attrs['new_password']
+
+        if user.check_password(old_password):
+
+            try:
+                validate_password(new_password, user)
+
+            except django_exceptions.ValidationError as e:
+                serializer_errors = serializers.as_serializer_error(e)
+                raise serializers.ValidationError({
+                    'new_password': serializer_errors[
+                        api_settings.NON_FIELD_ERRORS_KEY]
+                })
+        else:
+            raise serializers.ValidationError({
+                'old_password': 'wrong password try again'
+            })
+        return attrs

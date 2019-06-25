@@ -10,7 +10,8 @@ from rest_framework.routers import DefaultRouter
 from api.views import (AccountViewSet,
                        PackageViewSet,
                        CustomAuthTokenLogin,
-                       ClientAddressViewSet
+                       ClientAddressViewSet,
+                       ResetPasswordViewSet
                        )
 
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include(router.urls)),
     path('api/login/', CustomAuthTokenLogin.as_view(), name="login"),
+    path('api/resetpassword/', ResetPasswordViewSet, name="resetpassword"),
     path('', TemplateView.as_view(template_name="home.html"), name="home"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
