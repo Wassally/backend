@@ -34,7 +34,7 @@ class Package(models.Model):
         return self.note
 
     def save(self, * args, **kwargs):
-        self.wassally_salary = 11
+        self.wassally_salary = 0
         super().save(* args, **kwargs)
 
     class Meta:
