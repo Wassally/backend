@@ -83,9 +83,8 @@ class PackageCreateSerializer(PackageSerializer):
         to_address_location = attrs.get('packageaddress').get(
             'to_address').get('location')
 
-        if from_address_location and to_address_location:
-            self.distance_between_points(
-                from_address_location, to_address_location)
+        self.distance_between_points(
+            from_address_location, to_address_location)
 
         return attrs
 
@@ -184,3 +183,11 @@ class ComputingSalarySerializer(serializers.Serializer):
     weight = serializers.IntegerField(required=True)
     from_location = PointField(required=True)
     to_location = PointField(required=True)
+
+    def validate(self, attrs):
+
+        to_location = attrs["to_location"]
+        from_location = attrs["from_location"]
+        PackageSerializer.distance_between_points(
+            self, to_location, from_location)
+        return attrs
