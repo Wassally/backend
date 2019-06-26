@@ -121,6 +121,15 @@ class PackageCreateSerializer(PackageSerializer):
 
 
 class PackageUpdateSerializer (PackageSerializer):
+    class Meta:
+        model = Package
+        fields = ('id', 'owner', 'sender_phone_number', 'receiver_name',
+                  'receiver_phone_number', 'note', 'weight',
+                  'duration', 'created_at', 'updated_at', 'time_since',
+                  "state", "wassally_salary", 'package_address')
+
+        read_only_fields = ("created_at", "updated_at",
+                            "state", "wassally_salary")
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -166,3 +175,12 @@ class PackageUpdateSerializer (PackageSerializer):
             'address_description', instace_address.address_description)
 
         return instace_address
+
+
+class ComputingSalarySerializer(serializers.Serializer):
+
+    to_formated_address = serializers.CharField(required=True)
+    from_formated_address = serializers.CharField(required=True)
+    weight = serializers.IntegerField(required=True)
+    from_location = PointField(required=True)
+    to_location = PointField(required=True)

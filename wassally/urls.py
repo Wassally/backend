@@ -11,7 +11,8 @@ from api.views import (AccountViewSet,
                        PackageViewSet,
                        CustomAuthTokenLogin,
                        ClientAddressViewSet,
-                       ResetPasswordViewSet
+                       ResetPasswordViewSet,
+                       ComputingSalary
                        )
 
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path('api/login/', CustomAuthTokenLogin.as_view(), name="login"),
     path('api/resetpassword/', ResetPasswordViewSet, name="resetpassword"),
+    path('api/computingsalary/', ComputingSalary, name="computingsalary"),
     path('', TemplateView.as_view(template_name="home.html"), name="home"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

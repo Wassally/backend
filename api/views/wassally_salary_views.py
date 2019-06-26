@@ -1,16 +1,18 @@
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+from api.serializers import ComputingSalarySerializer
 
 
-# class ComputingSalary(APIView):
+@api_view(['POST'])
+def ComputingSalary(request):
+    ''' view for computing salary '''
 
-#     def post(self, request, format=None):
-#         to_place = request.POST.get("to_place", None)
-#         from_place = request.POST.get("from_place", None)
-#         weight = request.POST.get("weight", None)
+    serializer = ComputingSalarySerializer(data=request.data)
+    if serializer.is_valid():
 
-#         if to_place and from_place and weight:
-#             salary = computing_salary(to_place, from_place, weight)
-#             content = {"expected_salary": salary}
-#             return Response(content, status=status.HTTP_200_OK)
-#         return Response({"message": "error"}, status=status.HTTP_409_CONFLICT)
+        salary = 0
+        content = {"expected_salary": salary}
+        return Response(content, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
