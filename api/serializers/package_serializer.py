@@ -64,7 +64,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
         return (weight, transport_way, to_address, from_address)
 
-    def distance_between_points(self, point1, point2):
+    @staticmethod
+    def distance_between_points(point1, point2):
         distance = vincenty(point1.coords, point2.coords).kilometers
         if distance < 2:
             raise serializers.ValidationError(
@@ -177,6 +178,7 @@ class PackageUpdateSerializer (PackageSerializer):
 
 
 class ComputingSalarySerializer(serializers.Serializer):
+    ''' serializer for validating fields of the function '''
 
     to_formated_address = serializers.CharField(required=True)
     from_formated_address = serializers.CharField(required=True)
@@ -188,6 +190,5 @@ class ComputingSalarySerializer(serializers.Serializer):
 
         to_location = attrs["to_location"]
         from_location = attrs["from_location"]
-        PackageSerializer.distance_between_points(
-            self, to_location, from_location)
+        PackageSerializer.distance_between_points(to_location, from_location)
         return attrs
