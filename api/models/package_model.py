@@ -3,6 +3,8 @@ from django.db import models
 
 from .user_model import User
 
+from api.utils import computing_salary
+
 
 class Package(models.Model):
     '''Package that client creates'''

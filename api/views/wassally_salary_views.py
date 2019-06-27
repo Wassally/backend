@@ -20,4 +20,5 @@ def ComputingSalary(request):
         salary = computing_salary(to_location, from_location, weight)
         content = {"expected_salary": salary}
         return Response(content, status=status.HTTP_200_OK)
+    print(request.data, serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

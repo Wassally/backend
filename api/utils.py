@@ -10,8 +10,10 @@ def computing_salary(to_location, from_location, weight):
 
     FIXED_TAX = 0
     RATE = 0
-    to_location = PointField().to_internal_value(to_location)
-    from_location = PointField().to_internal_value(from_location)
+    if isinstance(to_location, dict) and isinstance(to_location, dict):
+
+        to_location = PointField().to_internal_value(to_location)
+        from_location = PointField().to_internal_value(from_location)
 
     distance = vincenty(to_location.coords, from_location.coords).kilometers
     distance = math.ceil(distance)
