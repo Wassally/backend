@@ -15,10 +15,13 @@ def ComputingSalary(request):
     if serializer.is_valid():
         from_location = serializer.data['from_location']
         to_location = serializer.data['to_location']
+        from_formated_address = serializer.data['from_formated_address']
+        to_formated_address = serializer.data['to_formated_address']
         weight = serializer.data['weight']
 
-        salary = computing_salary(to_location, from_location, weight)
+        salary = computing_salary(
+            to_formated_address, from_formated_address,
+            to_location, from_location, weight)
         content = {"expected_salary": salary}
         return Response(content, status=status.HTTP_200_OK)
-    print(request.data, serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
