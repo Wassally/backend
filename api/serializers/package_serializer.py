@@ -14,6 +14,8 @@ from api.models import Package, Delivery, Address, PackageAddress
 
 from .address_serializer import AddressSerializer, PackageAddressSerializer
 
+from .validators import Choices
+
 
 class PackageSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -117,6 +119,7 @@ class PackageCreateSerializer(PackageSerializer):
         PackageAddress.objects.create(to_address=to_address,
                                       from_address=from_address,
                                       package=package)
+        package.save()
         return package
 
 
@@ -149,9 +152,15 @@ class PackageUpdateSerializer (PackageSerializer):
                 instacne.packageaddress.to_address.location,
                 instacne.packageaddress.from_address.location
             )
-            instacne.packageaddress.to_address.save()
-            instacne.packageaddress.from_address.save()
             instacne.save()
+            instacne.packageaddress.to_address.save(
+                update_fields=['formated_address',
+                               'location', 'address_description']
+            )
+            instacne.packageaddress.from_address.save(
+                update_fields=['formated_address',
+                               'location', 'address_description']
+            )
 
         return instacne
 
@@ -180,8 +189,10 @@ class PackageUpdateSerializer (PackageSerializer):
 class ComputingSalarySerializer(serializers.Serializer):
     ''' serializer for validating fields of the function '''
 
-    to_formated_address = serializers.CharField(required=True)
-    from_formated_address = serializers.CharField(required=True)
+    to_formated_address = serializers.CharField(
+        required=True, validators=[Choices(['Damietta Governorate'])])
+    from_formated_address = serializers.CharField(
+        required=True, validators=[Choices(['Damietta Governorate'])])
     weight = serializers.IntegerField(required=True)
     from_location = PointField(required=True)
     to_location = PointField(required=True)
