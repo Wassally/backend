@@ -5,14 +5,14 @@ from .user_model import Captain
 
 class Delivery(models.Model):
     '''This model shows te delivery opeartion.'''
-    s = (("phase1", "phase1"),
-         ("phase2", "phase2"),
-         ("phase3", "phase3"))
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name="orders", default=0)
+    s = (("waiting", "waiting"),
+         ("delivered", "delivered"),
+         ("shipping", "shipping"),
+         ("shipped", "shipped"))
+    package = models.OneToOneField(Package, on_delete=models.CASCADE)
     captain = models.ForeignKey(
-        Captain, on_delete=models.CASCADE, related_name="captains", null=True)
-    state = models.CharField(choices=s, max_length=7, default="phase1")
+        Captain, on_delete=models.CASCADE, related_name="captains", default=1)
+    state = models.CharField(choices=s, max_length=11, default="waiting")
 
     ''' making cap and order unique and
     making that table for better manipulating with database'''
@@ -21,4 +21,4 @@ class Delivery(models.Model):
         app_label = 'api'
 
     def __str__(self):
-        return "order:%s taken by captian:%s" % (self.package, self.captain)
+        return f"order:{self.package} taken by captian{self.captain}"
