@@ -1,4 +1,3 @@
-
 import os
 import ast
 from configparser import RawConfigParser
@@ -145,14 +144,12 @@ MEDIA_LOCATION = "media"
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 AZURE_ACCOUNT_NAME = "wassallyaccount"
 AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
-AZURE_ACCOUNT_KEY = config.get('access-key','AZURE_ACCOUNT_KEY')
-AZURE_CONTAINER ='media'
+AZURE_ACCOUNT_KEY = config.get('access-key', 'AZURE_ACCOUNT_KEY')
+AZURE_CONTAINER = 'media'
 
 MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
-
