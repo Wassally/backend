@@ -5,7 +5,8 @@ from .package_serializer import (PackageCreateSerializer,
 from .token_custom_serializer import AuthTokenCustomSerializer
 from .user_serializer import (UserSerializer,
                               UserCreateSerializer,
-                              ResetPasswordSerializer)
+                              ResetPasswordSerializer,
+                              CaptainSerializer)
 
 from .address_serializer import (ClientAddressSerializer,
                                  ClientAddressEndPointSerializer)
