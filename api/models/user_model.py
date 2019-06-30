@@ -20,9 +20,6 @@ class Captain(models.Model):
     '''Extend user for captin object.'''
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    national_id = models.IntegerField()
-    image_national_id = models.ImageField(
-        upload_to='national_id/%y%m%d/', blank=True, null=True)
     vehicle = models.CharField(max_length=30, default="car")
 
     def __str__(self):
