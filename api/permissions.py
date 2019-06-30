@@ -33,11 +33,8 @@ class IsClientAndOwner(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         elif request.user == package.owner:
-            try:
-                delivery = Delivery.objects.get(package=package)
-                return delivery.state == "phase1"
-            except:
-                return False
+            return package.state == "avaliable"
+
         return False
 
 
