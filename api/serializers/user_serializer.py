@@ -19,18 +19,15 @@ from .address_serializer import ClientAddressSerializer
 
 class CaptainSerializer(serializers.ModelSerializer):
     '''Serializer for Captain'''
-    national_id = serializers.IntegerField(required=False)
-    image_national_id = Base64ImageField(required=False)
 
     class Meta:
         model = Captain
         exclude = ("user",)
-        depth = 2
 
 
 class UserSerializer(serializers.ModelSerializer):
     '''Serializer for user.'''
-    captain = CaptainSerializer(required=False)
+
     image = Base64ImageField(required=False)
     packages = PackageSerializer(many=True, read_only=True)
     email = serializers.EmailField(
@@ -67,24 +64,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def perform_update(self, instance, validated_data):
-        captain_data = validated_data.pop("captain", None)
-
         if instance.is_client:
             instance = super().update(instance, validated_data)
-
-        elif instance.is_captain:
-            instance = super().update(instance, validated_data)
-            captain = instance.captain
-    # this if cuz we might give captain data with out suppling captain filed
-            if captain_data:
-                captain.national_id = captain_data.get(
-                    "national_id", captain.national_id)
-                captain.vehicle = captain_data.get(
-                    "feedback", captain.vehicle)
-                captain.image_national_id = captain_data.get(
-                    "image_national_id", captain.image_national_id)
-                captain.save()
-
         return instance
 
 
@@ -100,16 +81,15 @@ class UserCreateSerializer(UserSerializer):
             'id', "auth_token", 'email', 'username', 'created_at',
             'updated_at', 'first_name', 'last_name', 'password',
             'phone_number', 'is_captain', 'is_client', 'user_addresses',
-            'captain', "image", "packages")
+            "image", "packages")
         read_only_fields = ("created_at", "updated_at",
-                            "auth_token")
+                            "auth_token", "is_captain", "is_client")
         write_only_fields = ('password',)
 
     def validate(self, attrs):
-        captain = attrs.pop('captain', None)
+
         user = User(**attrs)
         password = attrs.get('password')
-        attrs['captain'] = captain
 
         try:
             validate_password(password, user)
@@ -142,18 +122,11 @@ class UserCreateSerializer(UserSerializer):
     @transaction.atomic
     def perform_create(self, validated_data):
 
-        captain_data = validated_data.pop("captain", None)
-        user_addresses = validated_data.pop('user_addresses', None)
+        validated_data['is_client'] = True
+        validated_data['is_captain'] = False
 
         if validated_data.get("is_client"):
             user = User.objects.create_user(**validated_data)
-        elif validated_data.get("is_captain"):
-            user = User.objects.create_user(**validated_data)
-            if captain_data:
-                Captain.objects.create(user=user, **captain_data)
-            else:
-                raise serializers.ValidationError(
-                    "set national id at least for the captain")
         Token.objects.create(user=user)
 
         return user
