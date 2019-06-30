@@ -1,14 +1,14 @@
 from django.http import Http404
-from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import permissions, viewsets
 from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework import status
-
+from django_filters.rest_framework import DjangoFilterBackend
 from api.permissions import IsClientAndOwner
 from api.serializers import PackageCreateSerializer, PackageUpdateSerializer
 from api.models import Package
+
+from ..filters import PackageFilter
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -17,6 +17,8 @@ class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     permission_classes = (permissions.IsAuthenticated, IsClientAndOwner)
     filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
+    filter_class = PackageFilter
+
     ordering_fields = '__all__'
 
     filterset_fields = ('state',)
@@ -29,14 +31,3 @@ class PackageViewSet(viewsets.ModelViewSet):
         if self.request.method == 'POST':
             return PackageCreateSerializer
         return self.serializer_class
-
-    def destroy(self, request, *args, **kwargs):
-        print("yes")
-        try:
-            obj = self.get_object()
-            self.perform_destroy(obj)
-            return Response({"message": "the object was deleted"},
-                            status=status.HTTP_204_NO_CONTENT)
-        except Http404:
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
