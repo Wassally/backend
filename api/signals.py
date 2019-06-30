@@ -39,7 +39,7 @@ def updating_salary(sender, instance, **kwargs):
                                                        to_location,
                                                        from_location,
                                                        package.weight)
-            print(from_location)
+            
             package.save()
 
         elif PackageAddress.objects.filter(from_address=instance).exists():
