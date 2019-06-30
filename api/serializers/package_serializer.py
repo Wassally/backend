@@ -24,13 +24,16 @@ class PackageSerializer(serializers.ModelSerializer):
     time_since = serializers.SerializerMethodField()
     package_address = PackageAddressSerializer(many=False,
                                                source='packageaddress')
+    delivery_state = serializers.SerializerMethodField()
+    captain_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
         fields = ('id', 'owner', 'sender_phone_number', 'receiver_name',
                   'receiver_phone_number', 'note', 'weight', 'transport_way',
                   'duration', 'created_at', 'updated_at', 'time_since',
-                  "state", "wassally_salary", 'package_address')
+                  "state", "wassally_salary", 'package_address',
+                  'delivery_state', 'captain_name')
 
         read_only_fields = ("created_at", "updated_at",
                             "state", "wassally_salary")
@@ -48,6 +51,12 @@ class PackageSerializer(serializers.ModelSerializer):
 
     def get_time_since(self, obj):
         return timesince(obj.created_at)
+
+    def get_delivery_state(self, obj):
+        return obj.delivery.state
+
+    def get_captain_name(self, obj):
+        return obj.delivery.captain.user.username
 
     def cleaning_validated_data(self, validated_data):
         ''' cleaning and parsing the validated data '''
@@ -112,7 +121,7 @@ class PackageCreateSerializer(PackageSerializer):
             package.transport_way = "wassally"
             package.state = "pending"
             package.save()
-            Delivery.objects.create(package=package, state="phase1")
+            Delivery.objects.create(package=package, state="waiting")
 
         to_address = Address.objects.create(**to_address)
         from_address = Address.objects.create(**from_address)
@@ -129,7 +138,8 @@ class PackageUpdateSerializer (PackageSerializer):
         fields = ('id', 'owner', 'sender_phone_number', 'receiver_name',
                   'receiver_phone_number', 'note', 'weight',
                   'duration', 'created_at', 'updated_at', 'time_since',
-                  "state", "wassally_salary", 'package_address')
+                  "state", "wassally_salary", 'package_address',
+                  'delivery_state', 'captain_name')
 
         read_only_fields = ("created_at", "updated_at",
                             "state", "wassally_salary")
@@ -189,10 +199,8 @@ class PackageUpdateSerializer (PackageSerializer):
 class ComputingSalarySerializer(serializers.Serializer):
     ''' serializer for validating fields of the function '''
 
-    to_formated_address = serializers.CharField(
-        required=True, validators=[Choices(['Damietta Governorate'])])
-    from_formated_address = serializers.CharField(
-        required=True, validators=[Choices(['Damietta Governorate'])])
+    to_formated_address = serializers.CharField(required=True)
+    from_formated_address = serializers.CharField(required=True)
     weight = serializers.IntegerField(required=True)
     from_location = PointField(required=True)
     to_location = PointField(required=True)
