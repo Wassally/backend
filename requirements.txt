@@ -13,7 +13,7 @@ factory-boy==2.11.1
 Faker==1.0.5
 gunicorn==19.9.0
 pep8==1.7.1
-Pillow==5.4.1
+Pillow==8.3.2
 psycopg2==2.8.2
 psycopg2-binary==2.8.2
 pycodestyle==2.5.0
